@@ -5,9 +5,69 @@
 }
 
 body {
+    background-color: black;
+    margin: 0;
     overflow: hidden;
 }
 
 canvas {
     background: black;
 }
+
+#controls {
+    display: none;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    color: rgb(255, 255, 255);
+  }
+
+#controls.active {
+    display: block;
+}
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #welcomeContainer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#welcomeText {
+    color: white;
+    font-size: 3rem;
+    margin-bottom: 3rem;
+}
+
+#suggestedVisualizers {
+    display: flex;
+    justify-content: space-around;
+    width: 75%;
+}
+
+.suggestedVisualizer {
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.suggestedVisualizer:hover {
+    color: lightblue;
+}
+
+.visualizer-specific {
+    display: none;
+}
+
+
+  
