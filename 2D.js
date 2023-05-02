@@ -1,4 +1,4 @@
-function init2DVisualizer() {
+function init2DVisualizer(mic) {
 
     const canvas = document.getElementById('myCanvas');
     const ctx = canvas.getContext('2d');
@@ -63,6 +63,7 @@ function init2DVisualizer() {
     function createBars(colorRange) {
         for (let i = 0; i < fftSizeInput.value / 2; i++) {
             let color = 'hsl(' + i * 2 * colorRange + ',100%,50%'; // hue, saturation, lightness
+            let x = (canvas.width / 2) - (barWidth * (fftSizeInput.value / 4)) + (i * barWidth);
             bars.push(new Bar(0, i * 1.5, 10, 50, color, i));
         }
     }
@@ -140,7 +141,8 @@ function init2DVisualizer() {
         stop: function () {
             window.cancelAnimationFrame(animationID);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+            canvas.style.display = 'none';
+            
             // Remove event listeners
             window.removeEventListener('resize', onResize);
             fftSizeInput.removeEventListener('change', (e) => updateFFTSize(e.target));

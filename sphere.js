@@ -8,7 +8,7 @@ function lerp(start, end, t) {
 function init3DVisualizer(mic) {
     microphone = mic;
     threeJSScene = new THREE.Scene();
-    threeJSCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    threeJSCamera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
     threeJSCamera.position.z = 5;
 
 
@@ -21,7 +21,16 @@ function init3DVisualizer(mic) {
     geometry = new THREE.SphereGeometry(1, 32, 32);
     originalPositions = geometry.attributes.position.clone();
 
-    threeJSMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    threeJSScene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    directionalLight.position.set(1, 1, 1);
+    threeJSScene.add(directionalLight);
+
+    threeJSMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, wireframe: true });
+
+    //threeJSMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
     const mesh = new THREE.Mesh(geometry, threeJSMaterial);
     threeJSScene.add(mesh);
 
@@ -32,11 +41,18 @@ function init3DVisualizer(mic) {
     animateThreeJS();
 
     return {
+        updateSphereSegments: function (segments) {
+            const newGeometry = new THREE.SphereGeometry(1, segments, segments);
+            originalPositions = newGeometry.attributes.position.clone();
+            geometry.copy(newGeometry);
+        },
+
         stop: function () {
             window.cancelAnimationFrame(threeJSAnimationId);
             document.body.removeChild(threeJSRenderer.domElement);
             threeJSOrbitControls.dispose();
 
+            /*
             // Remove event listeners
             window.removeEventListener('resize', threeJSOnWindowResize);
             sphereColorInput.removeEventListener("input", (e) => {
@@ -44,7 +60,7 @@ function init3DVisualizer(mic) {
             });
             wireframeInput.removeEventListener("change", (e) => {
                 threeJSMaterial.wireframe = e.target.checked;
-            });
+            });*/
         },
 
     };
@@ -100,17 +116,17 @@ function animateThreeJS() {
     threeJSRenderer.render(threeJSScene, threeJSCamera);
 }
 
-const sphereColorInput = document.getElementById("sphereColorInput");
-const wireframeInput = document.getElementById("wireframeInput");
+function mapFFTSizeToSegments(fftSize) {
+    // You can adjust the mapping based on your preference
+    if (fftSize <= 256) return 16;
+    if (fftSize <= 512) return 32;
+    if (fftSize <= 1024) return 64;
+    if (fftSize <= 2048) return 128;
+    return 256;
+}
 
-sphereColorInput.addEventListener("input", (e) => {
-    threeJSMaterial.color.set(e.target.value);
-});
-
-wireframeInput.addEventListener("change", (e) => {
-    threeJSMaterial.wireframe = e.target.checked;
-});
-
+const segments = mapFFTSizeToSegments(microphone.getFFTSize());
+geometry = new THREE.SphereGeometry(1, segments, segments);
 
 
 function threeJSOnWindowResize() {

@@ -69,5 +69,24 @@ canvas {
     display: none;
 }
 
+/* for Chrome/ Safari */
+input[type="range"]::-webkit-slider-runnable-track {
+    background-color: #dad5d423;
+    height: 4px;
+    border-radius: 2px;
+}
 
-  
+/* for Firefox */
+input[type="range"]::-moz-range-track {
+    background-color: #4e4a4a34;
+    height: 4px;
+    border-radius: 2px;
+}
+
+/* for Internet Explorer /Edge */
+input[type="range"]::-ms-track {
+    background-color: #e3e0df7b; 
+    height: 4px;
+    border-radius: 2px;
+}
+

@@ -16,7 +16,9 @@ visualizerSelector.addEventListener("change", () => {
 function changeVisualizer(selectedVisualizer, mic) {
     switch (selectedVisualizer) {
         case "2D":
-            return init2DVisualizer();
+            const canvas = document.getElementById('myCanvas');
+            canvas.style.display = 'block';
+            return init2DVisualizer(mic);
         case "3D":
             return init3DVisualizer(mic);
         case "Cubes":
@@ -45,14 +47,17 @@ function updateVisualizerUI(selectedVisualizer) {
     visualizerSpecificControls.forEach(control => control.style.display = 'none');
     const selectedVisualizerControls = document.querySelectorAll(`.v${selectedVisualizer}-visualizer-specific`);
     selectedVisualizerControls.forEach(control => control.style.display = 'block');
+
+    // general parameters for all UIs
     if (selectedVisualizer !== 'none') {
         fftSizeContainer.style.display = 'block';
-        colorRangeContainer.style.display = 'block';
         sensitivityContainer.style.display = 'block';
     }
 
+    // visualizer specific parameters
     switch (selectedVisualizer) {
         case '2D':
+            colorRangeContainer.style.display = 'block';
             rotationSpeedContainer.style.display = 'block';
             break;
         case '3D':
@@ -106,10 +111,16 @@ function initController() {
     const colorRangeSlider = document.getElementById('colorRangeInput');
     const rotationSpeedSlider = document.getElementById('rotationSpeedInput');
     const sensitivitySlider = document.getElementById('sensitivityInput');
+    const sphereColorInput = document.getElementById("sphereColorInput");
+    const wireframeInput = document.getElementById("wireframeInput");
+
 
     fftSizeSlider.addEventListener('input', event => {
         const fftSize = parseInt(event.target.value);
         microphone.setFFTSize(fftSize);
+        if (currentVisualizer && currentVisualizer.updateSphereSegments) {
+            currentVisualizer.updateSphereSegments(mapFFTSizeToSegments(fftSize));
+        }
     });
 
     colorRangeSlider.addEventListener('input', event => {
@@ -130,6 +141,19 @@ function initController() {
         const sensitivity = parseFloat(event.target.value);
         if (currentVisualizer && currentVisualizer.setSensitivity) {
             currentVisualizer.setSensitivity(sensitivity);
+        }
+    });
+    sphereColorInput.addEventListener("input", event => {
+        const sphereColor = parseFloat(event.target.value);
+        if (currentVisualizer && currentVisualizer.setSphereColor) {
+            currentVisualizer.setSphereColorInput(sphereColor);
+        }
+    });
+
+    wireframeInput.addEventListener("change", event => {
+        const wireframe = parseFloat(event.target.checked);
+        if (currentVisualizer && currentVisualizer.setWireframe) {
+            currentVisualizer.setWireframe(wireframe);
         }
     });
 }
