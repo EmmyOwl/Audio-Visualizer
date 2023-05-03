@@ -5,9 +5,88 @@
 }
 
 body {
+    background-color: black;
+    margin: 0;
     overflow: hidden;
 }
 
 canvas {
     background: black;
 }
+
+#controls {
+    display: none;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    color: rgb(255, 255, 255);
+  }
+
+#controls.active {
+    display: block;
+}
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #welcomeContainer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#welcomeText {
+    color: white;
+    font-size: 3rem;
+    margin-bottom: 3rem;
+}
+
+#suggestedVisualizers {
+    display: flex;
+    justify-content: space-around;
+    width: 75%;
+}
+
+.suggestedVisualizer {
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.suggestedVisualizer:hover {
+    color: lightblue;
+}
+
+.visualizer-specific {
+    display: none;
+}
+
+/* for Chrome/ Safari */
+input[type="range"]::-webkit-slider-runnable-track {
+    background-color: #dad5d423;
+    height: 4px;
+    border-radius: 2px;
+}
+
+/* for Firefox */
+input[type="range"]::-moz-range-track {
+    background-color: #4e4a4a34;
+    height: 4px;
+    border-radius: 2px;
+}
+
+/* for Internet Explorer /Edge */
+input[type="range"]::-ms-track {
+    background-color: #e3e0df7b; 
+    height: 4px;
+    border-radius: 2px;
+}
+
