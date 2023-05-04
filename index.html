@@ -14,6 +14,7 @@
     <script src='2D.js' defer></script>
     <script src='sphere.js' defer></script>
     <script src='cube.js' defer></script>
+    <script src='script.js' defer></script>
     <script src="controller.js" defer></script>
 </head>
 
@@ -24,7 +25,9 @@
         <div id="suggestedVisualizers">
             <div class="suggestedVisualizer" id="suggested2D">2D Visualizer</div>
             <div class="suggestedVisualizer" id="suggested3D">Sphere</div>
-            <div class="suggestedVisualizer" id="suggestedCube">Cubes</div>            
+            <div class="suggestedVisualizer" id="suggestedCube">Cubes</div>
+            <div class="suggestedVisualizer" id="suggestedLeila">Sphere 2</div>
+
         </div>
     </div>
     <div id="controls">
@@ -32,8 +35,10 @@
             <select id="visualizerSelector">
                 <option value="none">Select a visualizer</option>
                 <option value="2D">2D Visualizer</option>
-                <option value="3D">Sphere</option>
+                <option value="Sphere">Sphere</option>
                 <option value="Cubes">Cubes</option>
+                <option value="Leila">Sphere 2</option>
+
                 <!-- Add more options for other visualizers -->
             </select>
             <div id="fftSizeContainer">

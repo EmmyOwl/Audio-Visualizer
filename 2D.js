@@ -139,6 +139,8 @@ function init2DVisualizer(mic) {
     }
     return {
         stop: function () {
+            console.log("Stopping 2D visualizer"); // Replace [VisualizerName] with the corresponding visualizer name
+
             window.cancelAnimationFrame(animationID);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             canvas.style.display = 'none';
