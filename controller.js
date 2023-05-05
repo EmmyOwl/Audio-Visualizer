@@ -2,32 +2,60 @@ let currentVisualizer = null;
 
 const visualizerSelector = document.getElementById("visualizerSelector");
 
-visualizerSelector.addEventListener("change", () => {
+visualizerSelector.addEventListener("change", async () => {
     if (currentVisualizer) {
         currentVisualizer.stop();
     }
 
     const selectedVisualizer = visualizerSelector.value;
     const mic = new Microphone(512);
-    currentVisualizer = changeVisualizer(selectedVisualizer, mic);
+    currentVisualizer = await changeVisualizer(selectedVisualizer, mic);
     updateVisualizerUI(selectedVisualizer);
 });
 
-function changeVisualizer(selectedVisualizer, mic) {
+async function changeVisualizer(selectedVisualizer, mic) {
+    //console.log('Changing visualizer to:', selectedVisualizer);
+    //console.log('Current visualizer before change:', currentVisualizer);
+    console.log(mic);
+    await mic.ready;
+    console.log(mic.initialized);
+
+    let newVisualizer;
+
+    // Wait for the mic to be initialized
+    await new Promise(resolve => {
+        const checkInterval = setInterval(() => {
+            if (mic.initialized) {
+                clearInterval(checkInterval);
+                resolve();
+            }
+        }, 100);
+    });
+
     switch (selectedVisualizer) {
         case "2D":
             const canvas = document.getElementById('myCanvas');
             canvas.style.display = 'block';
-            return init2DVisualizer(mic);
-        case "3D":
-            return init3DVisualizer(mic);
+            newVisualizer = init2DVisualizer(mic) ;
+            break;
+        case "Sphere":
+            newVisualizer = init3DVisualizer(mic) ;
+            break;
         case "Cubes":
-            return initCubeVisualizer(mic);
+            newVisualizer = initCubeVisualizer(mic) ;
+            break;
+        case "Leila":
+            newVisualizer = initLeilaVisualizer(mic) ;
+            break;
         // Add more cases for other visualizers
         default:
-            return null;
+            newVisualizer = null;
     }
+
+    //console.log('New visualizer:', newVisualizer);
+    return Promise.resolve(newVisualizer);
 }
+
 
 function updateVisualizerUI(selectedVisualizer) {
 
@@ -60,22 +88,25 @@ function updateVisualizerUI(selectedVisualizer) {
             colorRangeContainer.style.display = 'block';
             rotationSpeedContainer.style.display = 'block';
             break;
-        case '3D':
+        case 'Sphere':
             break;
         case 'Cubes':
             //rotationSpeedContainer.style.display = 'block';
             break;
+        case 'Leila':
+            break;
     }
 }
 
-function startVisualizerFromSuggested(visualizerType) {
+async function startVisualizerFromSuggested(visualizerType) {
     hideWelcomeContainer();
     visualizerSelector.value = visualizerType;
+    console.log('current Visualizer in startfromSuggested:', currentVisualizer);
     if (currentVisualizer) {
         currentVisualizer.stop();
     }
     const mic = new Microphone(512);
-    currentVisualizer = changeVisualizer(visualizerType, mic);
+    currentVisualizer = await changeVisualizer(visualizerType, mic);
     updateVisualizerUI(visualizerType);
 }
 
@@ -94,17 +125,21 @@ function updateControlsVisibility() {
 }
 
 const suggested2D = document.getElementById("suggested2D");
-const suggested3D = document.getElementById("suggested3D");
+const suggestedSphere = document.getElementById("suggested3D");
 const suggestedCubes = document.getElementById("suggestedCube");
+const suggestedLeila = document.getElementById("suggestedLeila");
+console.log('suggestedLeila:',suggestedLeila);
 
-suggested2D.addEventListener("click", () => startVisualizerFromSuggested("2D"));
-suggested3D.addEventListener("click", () => startVisualizerFromSuggested("3D"));
-suggestedCubes.addEventListener("click", () => startVisualizerFromSuggested("Cubes"));
+suggested2D.addEventListener("click", async () => await startVisualizerFromSuggested("2D"));
+suggestedSphere.addEventListener("click", async () => await startVisualizerFromSuggested("3D"));
+suggestedCubes.addEventListener("click", async () => await startVisualizerFromSuggested("Cubes"));
+suggestedLeila.addEventListener("click", async () => await startVisualizerFromSuggested("Leila"));
 
-function initController() {
+
+async function initController() {
     const microphone = new Microphone(512);
     const selectedVisualizer = visualizerSelector.value;
-    currentVisualizer = changeVisualizer(selectedVisualizer, microphone);
+    currentVisualizer = await changeVisualizer(selectedVisualizer, microphone);
     updateVisualizerUI(selectedVisualizer);
 
     const fftSizeSlider = document.getElementById('fftSizeInput');
@@ -158,4 +193,5 @@ function initController() {
     });
 }
 
-initController();
+initController().catch(error => console.error('Error in initController:', error));
+

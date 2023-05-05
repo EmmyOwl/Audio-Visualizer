@@ -1,12 +1,26 @@
-let threeJSScene, threeJSCamera, threeJSRenderer, geometry, threeJSMaterial, simplex, originalPositions, threeJSOrbitControls;
+let threeJSScene, threeJSCamera, threeJSRenderer, geometry, threeJSMaterial, simplex, originalPositions, threeJSOrbitControls, sensitivity;
 
 function lerp(start, end, t) {
+    if (t === 0) {
+        return start;
+    }
     return start * (1 - t) + end * t;
 }
 
-
 function init3DVisualizer(mic) {
     microphone = mic;
+    let sensitivity = 1;
+
+    /*
+    await new Promise(resolve => {
+        const checkInterval = setInterval(() => {
+            if (microphone.initialized) {
+                clearInterval(checkInterval);
+                resolve();
+            }
+        }, 100);
+    });*/
+
     threeJSScene = new THREE.Scene();
     threeJSCamera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
     threeJSCamera.position.z = 5;
@@ -29,8 +43,6 @@ function init3DVisualizer(mic) {
     threeJSScene.add(directionalLight);
 
     threeJSMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, wireframe: true });
-
-    //threeJSMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
     const mesh = new THREE.Mesh(geometry, threeJSMaterial);
     threeJSScene.add(mesh);
 
@@ -40,27 +52,25 @@ function init3DVisualizer(mic) {
 
     animateThreeJS();
 
+    const segments = mapFFTSizeToSegments(microphone.getFFTSize());
+    geometry = new THREE.SphereGeometry(1, segments, segments);
+
     return {
         updateSphereSegments: function (segments) {
             const newGeometry = new THREE.SphereGeometry(1, segments, segments);
             originalPositions = newGeometry.attributes.position.clone();
             geometry.copy(newGeometry);
         },
+        setSensitivity: function (newSensitivity) {
+            sensitivity = newSensitivity;
+        },
 
         stop: function () {
+            console.log("Stopping sphere visualizer"); // Replace [VisualizerName] with the corresponding visualizer name
+
             window.cancelAnimationFrame(threeJSAnimationId);
             document.body.removeChild(threeJSRenderer.domElement);
             threeJSOrbitControls.dispose();
-
-            /*
-            // Remove event listeners
-            window.removeEventListener('resize', threeJSOnWindowResize);
-            sphereColorInput.removeEventListener("input", (e) => {
-                threeJSMaterial.color.set(e.target.value);
-            });
-            wireframeInput.removeEventListener("change", (e) => {
-                threeJSMaterial.wireframe = e.target.checked;
-            });*/
         },
 
     };
@@ -70,7 +80,6 @@ let athreeJSAnimationId;
 
 function animateThreeJS() {
     threeJSAnimationId = requestAnimationFrame(animateThreeJS);
-
     if (microphone.initialized) {
 
         threeJSOrbitControls.update();
@@ -79,9 +88,9 @@ function animateThreeJS() {
         const lowFrequency = bands.low / 255;
         const midFrequency = bands.mid / 255;
         const highFrequency = bands.high / 255;
+        //console.log('High/255):', highFrequency);
 
         const vertices = geometry.attributes.position;
-        //const originalPositions = geometry.attributes.position.clone();
         for (let i = 0; i < vertices.count; i++) {
             const vertex = new THREE.Vector3(
                 vertices.getX(i),
@@ -95,26 +104,52 @@ function animateThreeJS() {
                 originalPositions.getZ(i)
             );
 
+            const clampedLowFrequency = Math.min(Math.max(lowFrequency, -1), 1);
+            const clampedMidFrequency = Math.min(Math.max(midFrequency, -1), 1);
+            const clampedHighFrequency = Math.min(Math.max(highFrequency, -1), 1);
+            
             const offset = simplex.noise3D(
-                vertex.x * lowFrequency * 5,
-                vertex.y * midFrequency * 5,
-                vertex.z * highFrequency * 5
+                vertex.x * clampedLowFrequency * 5,
+                vertex.y * clampedMidFrequency * 5,
+                vertex.z * clampedHighFrequency * 5
             );
+            /*
+            console.log('Low Frequency:', lowFrequency);
+            console.log('Mid Frequency:', midFrequency);
+            console.log('High Frequency:', highFrequency);
+            console.log('Vertex X:', vertex.x);
+            console.log('Vertex Y:', vertex.y);
+            console.log('Vertex Z:', vertex.z);
+            console.log('Offset:', offset);*/
 
             if (!isNaN(offset)) {
-                const direction = vertex.clone().normalize().multiplyScalar(offset * 0.03);
+                const direction = vertex.clone().normalize().multiplyScalar(offset * 0.03 * sensitivity);
                 vertex.add(direction);
+                vertex.lerp(originalPosition, 0.1);
+                vertices.setXYZ(i, vertex.x, vertex.y, vertex.z);
+            }
+            else {
+                continue;
             }
 
             vertex.lerp(originalPosition, 0.1);
             vertices.setXYZ(i, vertex.x, vertex.y, vertex.z);
         }
+        /*
+        for (let i = 0; i < vertices.count; i++) {
+            if (isNaN(vertices.getX(i)) || isNaN(vertices.getY(i)) || isNaN(vertices.getZ(i))) {
+                console.error('NaN value detected in vertices:', i);
+                break;
+            }
+        }
+        */
         geometry.attributes.position.needsUpdate = true;
-        geometry.computeBoundingSphere();
+        //geometry.computeBoundingSphere();
     }
 
     threeJSRenderer.render(threeJSScene, threeJSCamera);
 }
+
 
 function mapFFTSizeToSegments(fftSize) {
     // You can adjust the mapping based on your preference
@@ -124,9 +159,6 @@ function mapFFTSizeToSegments(fftSize) {
     if (fftSize <= 2048) return 128;
     return 256;
 }
-
-const segments = mapFFTSizeToSegments(microphone.getFFTSize());
-geometry = new THREE.SphereGeometry(1, segments, segments);
 
 
 function threeJSOnWindowResize() {

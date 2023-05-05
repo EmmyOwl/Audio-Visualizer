@@ -51,6 +51,9 @@ function initCubeVisualizer(mic) {
 
     return {
         stop: function () {
+
+            console.log("Stopping cube visualizer"); // Replace [VisualizerName] with the corresponding visualizer name
+
             window.cancelAnimationFrame(cubeAnimationId);
             document.body.removeChild(cubeRenderer.domElement);
             cubeOrbitControls.dispose();
