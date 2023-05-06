@@ -1,6 +1,3 @@
-// const fragment = "./shaders/fragment-shader.glsl";
-// const vertex = "./shaders/vertex-shader.glsl";
-
 const fShader = `
 uniform float time;
 
@@ -246,6 +243,7 @@ function initRayMarchingVisualizer(mic) {
   rayMarchingRenderer = new THREE.WebGLRenderer();
   rayMarchingRenderer.setPixelRatio(window.devicePixelRatio);
   document.body.appendChild(rayMarchingRenderer.domElement);
+  console.log(window);
   // document.body.style.cursor = "none";
 
   // rayMarchingControls = new OrbitControls(rayMarchingCamera, rayMarchingRenderer.domElement);
@@ -255,6 +253,16 @@ function initRayMarchingVisualizer(mic) {
   mouseEvents_RayMarching();
   raf_RayMarching();
   settings_RayMarching();
+
+  return {
+    stop: function () {
+      console.log("Stopping raymarching visualizer");
+      window.cancelAnimationFrame(rayMarchingAnimationId);
+      gui.destroy();
+      rayMarchingRenderer.domElement.remove();
+      document.body.style.cursor = "default";
+    },
+  };
 }
 
 function setup_RayMarching() {
