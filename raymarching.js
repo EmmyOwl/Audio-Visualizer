@@ -1,8 +1,12 @@
 const fShader = `
 uniform float time;
 
-uniform float progX;
-uniform float progY;
+
+uniform float planetRotation;
+uniform float orbitDistance;
+uniform float orbitSpeed;
+uniform float orbitOffset;
+uniform float moonSize;
 
 uniform vec2 mouse;
 uniform sampler2D matcap;
@@ -77,78 +81,37 @@ float rand(vec2 co){
 
 // Signed distance function to create the shapes
 float boxSize = 0.1;
-float sphereSize = 0.2;
+float sphereSize = 0.0001;
 float cursorSize = 0.05;
-float moonSize = 0.05;
 float smoothingValue = 0.2;
+// float planetRotation = 0.1;
 
 float sdf(vec3 p) {
-  vec3 p1 = rotate(p, vec3(1.0,1.0,1.0), time/5.0);
+  vec3 p1 = rotate(p, vec3(1.0,1.0,1.0), time * planetRotation);
 
   // shape at origin
-  float box = smin(sdBox(p1, vec3(boxSize)),sdSphere(p,0.02), smoothingValue);
+  float box = smin(sdBox(p1, vec3(boxSize)),sdSphere(p1,sphereSize), smoothingValue);
   // sphere at origin
-  float sphere = sdSphere(p1, sphereSize);
   
   // shape at cursor
   float cursorSphere = sdSphere(p - vec3(mouse*resolution.zw*2.0,0.0), cursorSize);
 
-  // final shape
+  // add box to final shape
   float finalShape = box;
 
-  // // create a moon
-  // float moonX = sdSphere(p, 0.1);
-  // float moonY = sdSphere(p, 0.1);
-
-  float rotateSpeed = time / 20.0;
-
-  // // rotate the moons around the centre object
-  // vec3 pX = rotate(p, vec3(0.0,1.0,0.0), rotateSpeed);
-  // vec3 pY = rotate(p, vec3(1.0,0.0,0.0), rotateSpeed);
-
-  // // offset the moon
-  // moonX = sdSphere(pX - vec3(progX,0.0,0.0), 0.1);
-  // moonY = sdSphere(pY - vec3(0.0,progY,0.0), 0.1);
-
-  // // for loop to add moons
-  // for (int i = 0; i < 10; i++) {
-  //   // rotate the moons around the centre object
-  //   pX = rotate(pX, vec3(0.0,1.0,0.0), rotateSpeed);
-  //   pY = rotate(pY, vec3(1.0,0.0,0.0), rotateSpeed);
-
-  //   // offset the moon
-  //   moonX = smin(moonX, sdSphere(pX - vec3(progX,0.0,0.0), 0.1), smoothingValue);
-  //   moonY = smin(moonY, sdSphere(pY - vec3(0.0,progY,0.0), 0.1), smoothingValue);
-  // }
-
-  // //add moon to final shape
-  // finalShape = smin(finalShape, moonX, smoothingValue);
-  // finalShape = smin(finalShape, moonY, smoothingValue);
-
-  // array to hold moons
-  float moons[10];
-  float counter = 0.0;
   // for loop to add moons
-  for (int i = 0; i < 10; i+=1) {
-    // create a moon
-    float moon = sdSphere(p, moonSize);
-
+  for (float i = 0.0; i < 6.0; i+= 1.0) {
     // rotate the moons around the centre object
-    p = rotate(p, vec3(0.0,progX,progY), rotateSpeed);
-    // p = rotate(p, vec3(1.0,0.0,0.0), time/10.0);
-    // p = rotate(p, vec3(0.0,0.0,1.0), time/10.0);
+    float yAxis = 1.0 - (i / 6.0);
+    float minSpeed = i + 0.2;
 
-    // offset the moon
-    moon = smin(moon, sdSphere(p - vec3(0.5,0.0,0.0), moonSize), smoothingValue);
-    moon = smin(moon, sdSphere(p - vec3(0.0,0.2,0.0), moonSize), smoothingValue);
-    // moon = smin(moon, sdSphere(p - vec3(0.0,0.0,0.2), moonSize), smoothingValue);
+    vec3 p_Orbit = rotate(p, vec3(0.0,yAxis,0.0), time*orbitSpeed * minSpeed);
 
-    // add moon to array
-    moons[i] = moon;
+    // create a moon
+    float moon = sdSphere(p_Orbit - vec3(orbitDistance,0.0,0.0), moonSize);
 
-    // add moon array to final shape
-    finalShape = smin(finalShape, moons[i], smoothingValue);
-    counter += 0.07;
+    // add moon to final shape
+    finalShape = smin(finalShape, moon, smoothingValue);
   }
 
   return smin(finalShape,cursorSphere,smoothingValue);
@@ -177,6 +140,7 @@ void main() {
     float h = sdf(position);
     
     if (h < 0.0001 || t > tMax) break;
+
     if (h < 0.0001) break;
     
     t += h;
@@ -187,15 +151,18 @@ void main() {
   if (t < tMax) {
     vec3 position = cameraPosition + rayDirection * t;
     vec3 normal = calcNormal(position);
-    // colour = normal;
-    float diff = dot(vec3(1.0),normal);
+    colour = normal;
+    // float diff = dot(vec3(1.0),normal);
     vec2 matcapUV = getMatcap(rayDirection, normal);
+
+
     // colour = vec3(diff);
     colour = texture2D(matcap, matcapUV).rgb;
   }
 
   gl_FragColor = vec4(colour,1.0);
-}`;
+}
+`;
 
 const vShader = `
   attribute vec3 Colours;
@@ -215,8 +182,12 @@ void main() {
 
 var material;
 var settings = {
-  progX: 0,
-  progY: 0,
+  planetRotation: 0.1,
+  orbitDistance: 0.4,
+  orbitSpeed: 0.1,
+  orbitOffset: 0,
+  moonSize: 0.3,
+  sensitivity: 0.3,
 };
 
 let rayMarchingScene, rayMarchingCamera, rayMarchingRenderer, microphone, gui;
@@ -244,9 +215,7 @@ function initRayMarchingVisualizer(mic) {
   rayMarchingRenderer.setPixelRatio(window.devicePixelRatio);
   document.body.appendChild(rayMarchingRenderer.domElement);
   console.log(window);
-  // document.body.style.cursor = "none";
-
-  // rayMarchingControls = new OrbitControls(rayMarchingCamera, rayMarchingRenderer.domElement);
+  document.body.style.cursor = "none";
 
   setup_RayMarching();
   onWindowResize_RayMarching();
@@ -266,15 +235,15 @@ function initRayMarchingVisualizer(mic) {
 }
 
 function setup_RayMarching() {
-  // const vsh = fetch("./shaders/vertex-shader.glsl");
-  // const fsh = fetch("./shaders/fragment-shader.glsl");
-
   material = new THREE.ShaderMaterial({
     uniforms: {
       mouse: { value: new THREE.Vector2(0, 0) },
       time: { value: 0 },
-      progX: { value: 0 },
-      progY: { value: 0 },
+      planetRotation: { value: 0 },
+      orbitDistance: { value: 0 },
+      orbitSpeed: { value: 0 },
+      orbitOffset: { value: 0 },
+      moonSize: { value: 0 },
       resolution: { value: new THREE.Vector4() },
       matcap: {
         value: new THREE.TextureLoader().load("./assets/candy_matcap.png"),
@@ -294,8 +263,12 @@ function setup_RayMarching() {
 
 function settings_RayMarching() {
   gui = new dat.GUI();
-  gui.add(settings, "progX", -0.4, 0.4, 0.01);
-  gui.add(settings, "progY", -0.4, 0.4, 0.01);
+  gui.add(settings, "planetRotation", -0.5, 0.5, 0.01);
+  gui.add(settings, "orbitDistance", -0.4, 0.4, 0.01);
+  gui.add(settings, "orbitSpeed", -0.2, 0.2, 0.01);
+  gui.add(settings, "orbitOffset", -0.4, 0.4, 0.01);
+  gui.add(settings, "moonSize", 0.06, 0.1, 0.001);
+  gui.add(settings, "sensitivity", 0.0, 1.0, 0.01);
 }
 
 function mouseEvents_RayMarching() {
@@ -307,7 +280,7 @@ function mouseEvents_RayMarching() {
 
     //pass mouse position to shader
     material.uniforms.mouse.value.x = mouse.x;
-    material.uniforms.mouse.value.y = mouse.y;
+    material.uniforms.mouse.value.y = mouse.y + 0.15;
   });
 }
 
@@ -333,11 +306,39 @@ function onWindowResize_RayMarching() {
 
 let rayMarchingAnimationId;
 
+//function to clamp a value between a min and max
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+//function to normalise values between a min and max
+function normalise(value, min, max) {
+  return (value - min) / (max - min);
+}
+
 function raf_RayMarching() {
   rayMarchingAnimationId = window.requestAnimationFrame(raf_RayMarching);
   // console.log(rayMarchingAnimationId);
   updateTime_();
-  updateProgress_();
+  updateSettings_();
+  if (microphone.initialized) {
+    const bands = microphone.getFrequencyBands();
+    const lowFrequency = bands.low / 255;
+    const midFrequency = bands.mid / 255;
+    const highFrequency = bands.high / 255;
+
+    var lowFrequencyNormalised = normalise(lowFrequency, 0, 1);
+    var midFrequencyNormalised = normalise(midFrequency, 0, 1);
+    var highFrequencyNormalised = normalise(highFrequency, 0, 1);
+
+    // material.uniforms.planetRotation.value = 0.3;
+    // material.uniforms.orbitDistance.value = 0.4;
+    // material.uniforms.orbitSpeed.value = 0.15;
+    // material.uniforms.orbitOffset.value = 0.0;
+    material.uniforms.moonSize.value =
+      highFrequencyNormalised * settings.sensitivity;
+  }
+
   rayMarchingRenderer.render(rayMarchingScene, rayMarchingCamera);
 }
 
@@ -346,16 +347,22 @@ function updateTime_() {
   material.uniforms.time.value += 0.05;
 }
 
-function updateProgress_() {
+function updateSettings_() {
   // check if settings.progress is different from material.uniforms.progress.value
   if (
-    settings.progX === material.uniforms.progX.value &&
-    settings.progY === material.uniforms.progY.value
+    settings.planetRotation === material.uniforms.planetRotation.value &&
+    settings.orbitDistance === material.uniforms.orbitDistance.value &&
+    settings.orbitSpeed === material.uniforms.orbitSpeed.value &&
+    settings.orbitOffset === material.uniforms.orbitOffset.value
+    // settings.moonSize === material.uniforms.moonSize.value
   )
     return;
   // otherwise, update material.uniforms.progress.value
-  material.uniforms.progX.value = settings.progX;
-  material.uniforms.progY.value = settings.progY;
+  material.uniforms.planetRotation.value = settings.planetRotation;
+  material.uniforms.orbitDistance.value = settings.orbitDistance;
+  material.uniforms.orbitSpeed.value = settings.orbitSpeed;
+  material.uniforms.orbitOffset.value = settings.orbitOffset;
+  material.uniforms.moonSize.value = settings.moonSize;
 }
 
 export { initRayMarchingVisualizer };
