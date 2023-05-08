@@ -10,12 +10,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.9/dat.gui.min.js"></script>
     <script src='microphone.js' defer></script>
     <script src='2D.js' defer></script>
     <script src='sphere.js' defer></script>
     <script src='cube.js' defer></script>
     <script src='script.js' defer></script>
-    <script src="controller.js" defer></script>
+    <script type="module" src="controller.js" defer></script>
+    <script type="module" src="raymarching.js" defer></script>
 </head>
 
 <body>
@@ -27,7 +29,7 @@
             <div class="suggestedVisualizer" id="suggested3D">Sphere</div>
             <div class="suggestedVisualizer" id="suggestedCube">Cubes</div>
             <div class="suggestedVisualizer" id="suggestedLeila">Sphere 2</div>
-
+            <div class="suggestedVisualizer" id="suggestedRaymarching">Raymarching</div>
         </div>
     </div>
     <div id="controls">
@@ -38,6 +40,7 @@
                 <option value="Sphere">Sphere</option>
                 <option value="Cubes">Cubes</option>
                 <option value="Leila">Sphere 2</option>
+                <option value="Raymarching">Raymarching</option>
 
                 <!-- Add more options for other visualizers -->
             </select>
