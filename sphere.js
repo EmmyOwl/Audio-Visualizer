@@ -11,16 +11,6 @@ function init3DVisualizer(mic) {
     microphone = mic;
     let sensitivity = 1;
 
-    /*
-    await new Promise(resolve => {
-        const checkInterval = setInterval(() => {
-            if (microphone.initialized) {
-                clearInterval(checkInterval);
-                resolve();
-            }
-        }, 100);
-    });*/
-
     threeJSScene = new THREE.Scene();
     threeJSCamera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
     threeJSCamera.position.z = 5;
@@ -159,7 +149,6 @@ function mapFFTSizeToSegments(fftSize) {
     if (fftSize <= 2048) return 128;
     return 256;
 }
-
 
 function threeJSOnWindowResize() {
     threeJSCamera.aspect = window.innerWidth / window.innerHeight;

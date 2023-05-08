@@ -16,9 +16,9 @@ visualizerSelector.addEventListener("change", async () => {
 async function changeVisualizer(selectedVisualizer, mic) {
     //console.log('Changing visualizer to:', selectedVisualizer);
     //console.log('Current visualizer before change:', currentVisualizer);
-    console.log(mic);
+    //console.log(mic);
     await mic.ready;
-    console.log(mic.initialized);
+    //console.log(mic.initialized);
 
     let newVisualizer;
 
