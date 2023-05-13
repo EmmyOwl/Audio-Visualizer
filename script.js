@@ -70,7 +70,46 @@ function createGeometry() {
     ball.position.set(0, 0, 0);
     group.add(ball);
 
-    return { ball, plane, plane2 };
+
+    // Define a new torus geometry
+    var torusGeometry = new THREE.TorusGeometry(5, 1, 16, 100);
+
+    // Define a new material for the torus
+    var torusMaterial = new THREE.MeshLambertMaterial({
+        color: 0x00ff00,
+        wireframe: true
+    });
+
+    // Create a mesh using the new torus geometry and material
+    var torus = new THREE.Mesh(torusGeometry, torusMaterial);
+    torus.position.set(0, 0, 0);
+
+    // Add the torus mesh to the group
+    group.add(torus);
+
+    var clock = new THREE.Clock();
+
+    function animate() {
+        requestAnimationFrame(animate);
+
+        // Rotate the torus around the Y-axis
+        torus.rotation.y += 0.01;
+
+        // Update the clock and get the elapsed time
+        var elapsedTime = clock.getElapsedTime();
+
+        // Rotate the torus around the X-axis using the elapsed time
+        torus.rotation.x = elapsedTime * 0.5;
+
+        // Rotate the torus around the Z-axis using the elapsed time
+        torus.rotation.z = elapsedTime * 0.3;
+    }
+
+    animate();
+
+
+
+    return { ball, plane, plane2, torus };
 }
 
 function createLights() {
@@ -83,7 +122,23 @@ function createLights() {
     leilaSpotLight.lookAt(ball);
     leilaSpotLight.castShadow = true;
     leilaScene.add(leilaSpotLight);
+
+    leilaAmbientLight = new THREE.AmbientLight(0xaaaaaa);
+    leilaScene.add(leilaAmbientLight);
+
+    leilaSpotLight = new THREE.SpotLight(0xffffff);
+    leilaSpotLight.intensity = 0.9;
+    leilaSpotLight.position.set(-10, 40, 20);
+    leilaSpotLight.lookAt(ball);
+    leilaSpotLight.castShadow = true;
+    leilaScene.add(leilaSpotLight);
+
+    // Add a directional light
+    leilaDirectionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    leilaDirectionalLight.position.set(1, 1, 1);
+    leilaScene.add(leilaDirectionalLight);
 }
+
 
 let leilaAnimationId;
 
@@ -125,7 +180,7 @@ function makeRoughBall(mesh, bassFr, treFr) {
         const z = positionAttribute.getZ(i);
 
         const vertex = new THREE.Vector3(x, y, z).normalize();
-        const distance = (offset + bassFr* 5) + noise.noise3D(vertex.x + time * rf * 7, vertex.y + time * rf * 8, vertex.z + time * rf * 9) * amp * treFr * 0.5;
+        const distance = (offset + bassFr * 5) + noise.noise3D(vertex.x + time * rf * 7, vertex.y + time * rf * 8, vertex.z + time * rf * 9) * amp * treFr * 0.5;
         vertex.multiplyScalar(distance);
         positionAttribute.setXYZ(i, vertex.x, vertex.y, vertex.z);
 

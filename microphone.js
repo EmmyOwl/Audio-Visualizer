@@ -1,5 +1,5 @@
 class Microphone {
-    
+
     constructor(fftSize) {
         this.initialized = false;
         navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
@@ -11,6 +11,17 @@ class Microphone {
             this.dataArray = new Uint8Array(this.bufferLength);
             this.microphone.connect(this.analyser);
             this.initialized = true;
+            this.prevBands = {
+                low: 0,
+                mid: 0,
+                high: 0
+            };
+            this.lowPassFilter = this.audioContext.createBiquadFilter();
+            this.lowPassFilter.type = 'lowpass';
+            this.lowPassFilter.frequency.value = 40;
+            this.microphone.connect(this.lowPassFilter);
+            this.lowPassFilter.connect(this.analyser);
+
             this.ready = new Promise((resolve) => {
                 this.resolveReady = resolve;
             })
@@ -48,25 +59,39 @@ class Microphone {
         return this.analyser.fftSize;
     }
 
+    applySmoothing(value, previousValue, alpha) {
+        return alpha * value + (1 - alpha) * previousValue;
+    }
+
+    applyThreshold(value, threshold) {
+        return value > threshold ? value : 0;
+    }
+    
+
     getFrequencyBands() {
         this.analyser.getByteFrequencyData(this.dataArray);
-    
+
         const bands = {
             low: 0,
             mid: 0,
             high: 0
         };
-    
-        const lowFrequencyEnd = 150;
-        const midFrequencyStart = 150;
-        const midFrequencyEnd = 5000;
-        const highFrequencyStart = 5000;
+
+
+        let lowPassFilter = this.audioContext.createBiquadFilter();
+        lowPassFilter.type = 'lowpass';
+        lowPassFilter.frequency.value = 50;
+
+        const lowFrequencyEnd = 200;
+        const midFrequencyStart = 200;
+        const midFrequencyEnd = 1000;
+        const highFrequencyStart = 8000;
         const highFrequencyStartIndex = Math.floor(highFrequencyStart * this.analyser.fftSize / this.audioContext.sampleRate);
-    
+
         let lowCount = 0;
         let midCount = 0;
         let highCount = 0;
-    
+
         for (let i = 0; i < this.bufferLength; i++) {
             let frequency = (i * this.audioContext.sampleRate) / (this.analyser.fftSize * 2);
             if (frequency <= lowFrequencyEnd) {
@@ -77,16 +102,27 @@ class Microphone {
                 midCount++;
             }
         }
-    
+
         for (let i = highFrequencyStartIndex; i < this.bufferLength; i++) {
             bands.high += this.dataArray[i];
             highCount++;
         }
-    
+
+
+        const alphaHigh = 0.1;
+        const alphaMid = 0.01;
+        const alphaLow = 0.01;
+        if (this.previousBands) {
+            bands.low = this.applySmoothing(bands.low, this.previousBands.low, alphaLow);
+            bands.mid = this.applySmoothing(bands.mid, this.previousBands.mid, alphaMid);
+            bands.high = this.applySmoothing(bands.high, this.previousBands.high, alphaHigh);
+        }
+        this.prevBands = bands;
+        /*
         bands.low = lowCount > 0 ? bands.low / lowCount : 0;
         bands.mid = midCount > 0 ? bands.mid / midCount : 0;
         bands.high = highCount > 0 ? bands.high / highCount : 0;
-    
+        */
         return bands;
     }
 } 

@@ -6,14 +6,29 @@ function init2DVisualizer(mic) {
     canvas.height = window.innerHeight;
     window.addEventListener('resize', onResize);
 
-    const fftSizeInput = document.getElementById('fftSizeInput');
-    const colorRangeInput = document.getElementById('colorRangeInput');
-    const rotationSpeedInput = document.getElementById('rotationSpeedInput');
-    const sensitivityInput = document.getElementById('sensitivityInput');
+    const gui2D = new dat.GUI({ autoPlace: false });
+    const customContainer = document.getElementById("controls");
+    customContainer.appendChild(gui2D.domElement);
 
-    fftSizeInput.addEventListener('change', (e) => updateFFTSize(e.target));
-    colorRangeInput.addEventListener('input', (e) => updateColorRange(e.target.value));
+    const settings = {
+        fftSize: 512,
+        colorRange: 1,
+        rotationSpeed: 1,
+        sensitivity: 1,
+    };
 
+    const fftSizeController = gui2D.add(settings, "fftSize", 128, 32768);
+    const colorRangeController = gui2D.add(settings, "colorRange", { min:0, max:2});
+    const rotationSpeedController = gui2D.add(settings, "rotationSpeed", { min: -0.05, max: 0.05})
+    const sensitivityController = gui2D.add(settings, "sensitivity", { min:0, max:2});
+
+    fftSizeController.onChange((value) => {
+        const newValue = 128 * Math.pow(2, Math.round(Math.log2(value / 128)));
+        updateFFTSize(newValue);
+    });
+    colorRangeController.onChange((value) => updateColorRange(value));
+    rotationSpeedController.onChange((value) => settings.rotationSpeed = value);
+    sensitivityController.onChange((value) => settings.sensitivity = value);
 
     class Bar {
         constructor(x, y, width, height, color, index) {
@@ -56,14 +71,14 @@ function init2DVisualizer(mic) {
         }
     }
 
-    const microphone = new Microphone(fftSizeInput.value);
+    const microphone = new Microphone(settings.fftSize);
     let bars = [];
-    let barWidth = canvas.width / fftSizeInput.value / 2;
+    let barWidth = canvas.width / settings.fftSize / 2;
 
     function createBars(colorRange) {
-        for (let i = 0; i < fftSizeInput.value / 2; i++) {
+        for (let i = 0; i < settings.fftSize / 2; i++) {
             let color = 'hsl(' + i * 2 * colorRange + ',100%,50%'; // hue, saturation, lightness
-            let x = (canvas.width / 2) - (barWidth * (fftSizeInput.value / 4)) + (i * barWidth);
+            let x = (canvas.width / 2) - (barWidth * (settings.fftSize / 4)) + (i * barWidth);
             bars.push(new Bar(0, i * 1.5, 10, 50, color, i));
         }
     }
@@ -78,11 +93,11 @@ function init2DVisualizer(mic) {
             newValue = 128 * Math.pow(2, Math.round(Math.log2(newValue / 128)));
         }
         input.value = newValue;
-        fftSizeInput.value = newValue;
+        settings.fftSize = newValue;
         microphone.setFFTSize(newValue);
         bars = [];
         barWidth = canvas.width / newValue / 2;
-        createBars(colorRangeInput.value);
+        createBars(settings.colorRange);
     }
 
     function updateColorRange(value) {
@@ -102,16 +117,16 @@ function init2DVisualizer(mic) {
             // generate audio samples from microphone
             const samples = microphone.getSamples();
             const volume = microphone.getVolume();
-            const colorRange = parseFloat(colorRangeInput.value);
+            const colorRange = parseFloat(settings.colorRange);
 
             // animate bars based on microphone data
 
-            angle -= parseFloat(rotationSpeedInput.value);
+            angle -= parseFloat(settings.rotationSpeed);
             ctx.save();
             ctx.translate(canvas.width / 2, canvas.height / 2);
             ctx.rotate(angle);
             bars.forEach(function (bar, i) {
-                bar.update(samples[i] * parseFloat(sensitivityInput.value));
+                bar.update(samples[i] * parseFloat(settings.sensitivity));
                 bar.draw(ctx, volume);
             });
 
@@ -131,7 +146,7 @@ function init2DVisualizer(mic) {
     }
 
     animate();
-    createBars(colorRangeInput.value);
+    createBars(settings.colorRange);
 
     function onResize() {
         canvas.width = window.innerWidth;
@@ -144,11 +159,9 @@ function init2DVisualizer(mic) {
             window.cancelAnimationFrame(animationID);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             canvas.style.display = 'none';
-            
+
             // Remove event listeners
             window.removeEventListener('resize', onResize);
-            fftSizeInput.removeEventListener('change', (e) => updateFFTSize(e.target));
-            colorRangeInput.removeEventListener('input', (e) => updateColorRange(e.target.value));
         },
     };
 
