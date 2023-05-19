@@ -4,14 +4,22 @@ import { init3DVisualizer } from "./sphere.js";
 
 
 let currentVisualizer = null;
+let visualizerController;
 
-const gui = new dat.GUI();
-
-const visualizerSettings = {
+let visualizerSettings = {
   visualizer: "none",
 };
 
-const visualizerController = gui.add(visualizerSettings, "visualizer", [
+visualizerController = new dat.GUI({ autoPlace: false });
+document.body.appendChild(visualizerController.domElement);
+visualizerController.domElement.style.display = 'none';
+
+visualizerController.domElement.style.position = 'absolute';
+visualizerController.domElement.style.left = '0px';
+visualizerController.domElement.style.top = '0px';
+
+
+let visualizerControllerItem = visualizerController.add(visualizerSettings, "visualizer", [
   "none",
   "2D",
   "Sphere",
@@ -19,17 +27,20 @@ const visualizerController = gui.add(visualizerSettings, "visualizer", [
   "Leila",
   "Raymarching",
   "Jelly",
-]);
-
-visualizerController.onChange(async (selectedVisualizer) => {
+]).onChange(async (selectedVisualizer) => {
 
   if (currentVisualizer) {
     currentVisualizer.stop();
   }
+  if (selectedVisualizer === "none") {
+    visualizerController.domElement.style.display = 'none'; // Hide the dropdown GUI
+  } else {
+    visualizerController.domElement.style.display = 'block'; // Show the dropdown GUI
+  }
   const mic = new Microphone(512);
   currentVisualizer = await changeVisualizer(selectedVisualizer, mic);
-  updateVisualizerUI(selectedVisualizer);
 });
+
 
 
 async function changeVisualizer(selectedVisualizer, mic) {
@@ -78,40 +89,40 @@ async function changeVisualizer(selectedVisualizer, mic) {
   }
 
   //console.log('New visualizer:', newVisualizer);
-  return Promise.resolve(newVisualizer);
+  //return Promise.resolve(newVisualizer);
+  return newVisualizer;
 }
 
-function updateVisualizerUI(selectedVisualizer) {
-
-  updateControlsVisibility();
-
-}
 
 async function startVisualizerFromSuggested(visualizerType) {
   hideWelcomeContainer();
-  visualizerSelector.value = visualizerType;
+  visualizerSettings.visualizer = visualizerType;
+  visualizerControllerItem.updateDisplay();
+  visualizerController.domElement.style.display = 'block';
   console.log("current Visualizer in startfromSuggested:", currentVisualizer);
   if (currentVisualizer) {
     currentVisualizer.stop();
   }
   const mic = new Microphone(512);
   currentVisualizer = await changeVisualizer(visualizerType, mic);
-  updateVisualizerUI(visualizerType);
 }
+
 
 function hideWelcomeContainer() {
   const welcomeContainer = document.getElementById("welcomeContainer");
   welcomeContainer.style.display = "none";
 }
 
-function updateControlsVisibility() {
-  const controls = document.getElementById("controls");
-  if (visualizerSelector.value === "none") {
-    controls.classList.remove("active");
+
+function updateControlsVisibility(selectedVisualizer) {
+  if (selectedVisualizer === "none") {
+    gui.domElement.style.display = 'none';
   } else {
-    controls.classList.add("active");
+    gui.domElement.style.display = 'block';
   }
 }
+
+
 
 const suggested2D = document.getElementById("suggested2D");
 const suggestedSphere = document.getElementById("suggestedSphere");
@@ -146,13 +157,11 @@ suggestedJelly.addEventListener(
 );
 
 async function initController() {
-
   const microphone = new Microphone(512);
-  const selectedVisualizer = visualizerSelector.value;
+  const selectedVisualizer = visualizerSettings.visualizer;
   currentVisualizer = await changeVisualizer(selectedVisualizer, microphone);
-  updateVisualizerUI(selectedVisualizer);
-
 }
+
 
 initController().catch((error) =>
   console.error("Error in initController:", error)

@@ -72,29 +72,36 @@ class Microphone {
         this.analyser.getByteFrequencyData(this.dataArray);
 
         const bands = {
+            bass: 0,
             low: 0,
             mid: 0,
             high: 0
         };
 
-
+        
         let lowPassFilter = this.audioContext.createBiquadFilter();
         lowPassFilter.type = 'lowpass';
         lowPassFilter.frequency.value = 50;
 
+        const bassFrequencyStart = 60;
+        const bassFrequencyEnd = 120;
         const lowFrequencyEnd = 200;
-        const midFrequencyStart = 200;
+        const midFrequencyStart = 500;
         const midFrequencyEnd = 1000;
-        const highFrequencyStart = 8000;
+        const highFrequencyStart = 6000;
         const highFrequencyStartIndex = Math.floor(highFrequencyStart * this.analyser.fftSize / this.audioContext.sampleRate);
 
-        let lowCount = 0;
-        let midCount = 0;
-        let highCount = 0;
+        let bassCount = 1;
+        let lowCount = 1;
+        let midCount = 1;
+        let highCount = 1;
 
         for (let i = 0; i < this.bufferLength; i++) {
             let frequency = (i * this.audioContext.sampleRate) / (this.analyser.fftSize * 2);
-            if (frequency <= lowFrequencyEnd) {
+            if (frequency >= bassFrequencyStart && frequency <= bassFrequencyEnd) {
+                bands.bass += this.dataArray[i];
+                bassCount++;
+            } else if (frequency <= lowFrequencyEnd) {
                 bands.low += this.dataArray[i];
                 lowCount++;
             } else if (frequency > midFrequencyStart && frequency <= midFrequencyEnd) {
@@ -108,21 +115,24 @@ class Microphone {
             highCount++;
         }
 
-
+        bands.bass = bassCount > 0 ? bands.bass / bassCount : 0;
+        bands.low = lowCount > 0 ? bands.low / lowCount : 0;
+        bands.mid = midCount > 0 ? bands.mid / midCount : 0;
+        bands.high = highCount > 0 ? bands.high / highCount : 0;
+        
         const alphaHigh = 0.1;
-        const alphaMid = 0.01;
-        const alphaLow = 0.01;
+        const alphaMid = 0.1;
+        const alphaLow = 0.1;
+        const alphaBass = 0.1;
+        
         if (this.previousBands) {
+            bands.bass = this.applySmoothing(bands.bass, this.previousBands.bass, alphaBass);
             bands.low = this.applySmoothing(bands.low, this.previousBands.low, alphaLow);
             bands.mid = this.applySmoothing(bands.mid, this.previousBands.mid, alphaMid);
             bands.high = this.applySmoothing(bands.high, this.previousBands.high, alphaHigh);
         }
         this.prevBands = bands;
-        /*
-        bands.low = lowCount > 0 ? bands.low / lowCount : 0;
-        bands.mid = midCount > 0 ? bands.mid / midCount : 0;
-        bands.high = highCount > 0 ? bands.high / highCount : 0;
-        */
+        
         return bands;
     }
 } 

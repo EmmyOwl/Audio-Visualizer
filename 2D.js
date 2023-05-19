@@ -7,20 +7,27 @@ function init2DVisualizer(mic) {
     window.addEventListener('resize', onResize);
 
     const gui2D = new dat.GUI({ autoPlace: false });
-    const customContainer = document.getElementById("controls");
+    gui2D.domElement.style.position = 'absolute';
+    gui2D.domElement.style.right = '0px';
+    gui2D.domElement.style.top = '0px';
+    gui2D.domElement.style.display = 'none';
+    //document.body.appendChild(gui2D.domElement);
+
+    const customContainer = document.getElementById("guiContainer");
     customContainer.appendChild(gui2D.domElement);
 
     const settings = {
         fftSize: 512,
-        colorRange: 1,
-        rotationSpeed: 1,
-        sensitivity: 1,
+        colorRange: 0.1,
+        rotationSpeed: 0.01,
+        sensitivity: 5,
     };
 
-    const fftSizeController = gui2D.add(settings, "fftSize", 128, 32768);
-    const colorRangeController = gui2D.add(settings, "colorRange", { min:0, max:2});
-    const rotationSpeedController = gui2D.add(settings, "rotationSpeed", { min: -0.05, max: 0.05})
-    const sensitivityController = gui2D.add(settings, "sensitivity", { min:0, max:2});
+    gui2D.domElement.style.display = 'block';
+    const fftSizeController = gui2D.add(settings, "fftSize", [64, 128, 256, 512, 1024]);
+    const colorRangeController = gui2D.add(settings, "colorRange", 0.1, 2).step(0.1);
+    const rotationSpeedController = gui2D.add(settings, "rotationSpeed", -0.05, 0.05).step(0.01);
+    const sensitivityController = gui2D.add(settings, "sensitivity", 1, 30).step(0.5);
 
     fftSizeController.onChange((value) => {
         const newValue = 128 * Math.pow(2, Math.round(Math.log2(value / 128)));
@@ -83,16 +90,12 @@ function init2DVisualizer(mic) {
         }
     }
 
-    function updateFFTSize(input) {
-        let newValue = parseInt(input.value);
-        if (newValue < 128) {
-            newValue = 128;
+    function updateFFTSize(newValue) {
+        if (newValue < 64) {
+            newValue = 64;
         } else if (newValue > 32768) {
             newValue = 32768;
-        } else {
-            newValue = 128 * Math.pow(2, Math.round(Math.log2(newValue / 128)));
         }
-        input.value = newValue;
         settings.fftSize = newValue;
         microphone.setFFTSize(newValue);
         bars = [];
@@ -133,11 +136,11 @@ function init2DVisualizer(mic) {
             const bands = microphone.getFrequencyBands();
             bars.forEach((bar, i) => {
                 if (i < bars.length * 0.33) {
-                    bar.color = 'hsl(' + i * 2 * colorRange + ',100%,' + (50 + bands.low / 255 * 50) + '%)';
+                    bar.color = 'hsl(' + i * 2 * colorRange + ',100%,' + (50 + bands.low / 255 * 0.5) + '%)';
                 } else if (i >= bars.length * 0.33 && i < bars.length * 0.66) {
-                    bar.color = 'hsl(' + i * 2 * colorRange + ',100%,' + (50 + bands.mid / 255 * 50) + '%)';
+                    bar.color = 'hsl(' + i * 2 * colorRange + ',100%,' + (50 + bands.mid / 255 * 0.5) + '%)';
                 } else {
-                    bar.color = 'hsl(' + i * 2 * colorRange + ',100%,' + (50 + bands.high / 255 * 50) + '%)';
+                    bar.color = 'hsl(' + i * 2 * colorRange + ',100%,' + (50 + bands.high / 255 * 0.5) + '%)';
                 }
             });
             ctx.restore();
@@ -159,7 +162,8 @@ function init2DVisualizer(mic) {
             window.cancelAnimationFrame(animationID);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             canvas.style.display = 'none';
-
+            gui2D.destroy();
+            gui2D.domElement.style.display = 'none';
             // Remove event listeners
             window.removeEventListener('resize', onResize);
         },

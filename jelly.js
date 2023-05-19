@@ -1,14 +1,11 @@
 import { createSculptureWithGeometry } from 'https://unpkg.com/shader-park-core/dist/shader-park-core.esm.js';
 import { spCode } from '/sp-code.js';
 
-let jellyScene, jellyCamera, jellyRenderer, jellyOrbitControls, state, thresholdLow, thresholdHigh, thresholdMid, LFAttenuation, MFAttenuation, HFAttenuation, fftSize, jellyMesh, jellyGeometry, treble, jellyGUI;
+let jellyScene, jellyCamera, jellyRenderer, jellyOrbitControls, state, LFAttenuation, MFAttenuation, HFAttenuation, fftSize, jellyMesh, jellyGeometry, treble, jellyGUI;
 
 var settings = {
     rotationSpeed: 0.5,
-    thresholdLow: 0.1,
-    thresholdMid: 0.1,
-    thresholdHigh: 0.1,
-    LFAttenuation: 0.3,
+    LFAttenuation: 1,
     MFAttenuation: 1,
     HFAttenuation: 1,
     treble: 1,
@@ -57,6 +54,7 @@ function initJellyVisualizer(mic) {
         audioLow: microphone.lowFrequency,
         audioMid: microphone.midFrequency,
         audioHigh: microphone.highFrequency,
+        bassFrequency: microphone.bassFrequency,
         mouse: state.mouse,
         LFAttenuation: LFAttenuation,
         MFAttenuation: MFAttenuation,
@@ -100,14 +98,6 @@ function initJellyVisualizer(mic) {
 
 let jellyAnimationId;
 
-function applyThreshold(value, threshold) {
-    return value > threshold ? value : 0;
-};
-
-thresholdLow = settings.thresholdLow;
-thresholdMid = settings.thresholdMid;
-thresholdHigh = settings.thresholdHigh;
-
 function animateJellyVisualizer() {
     jellyAnimationId = requestAnimationFrame(animateJellyVisualizer);
     state.time += clock.getDelta();
@@ -116,32 +106,27 @@ function animateJellyVisualizer() {
         jellyOrbitControls.update();
 
         const bands = microphone.getFrequencyBands();
-        const lowFrequency = applyThreshold(bands.low / fftSize, thresholdLow);
-        const midFrequency = applyThreshold(bands.mid / fftSize, thresholdMid);
-        const highFrequency = applyThreshold(bands.high / fftSize, thresholdHigh);
+        const lowFrequency = bands.low / fftSize;
+        const midFrequency = bands.mid / fftSize;
+        const highFrequency = bands.high / fftSize;
 
         microphone.lowFrequency = lowFrequency
         microphone.midFrequency = midFrequency;
         microphone.highFrequency = highFrequency;
 
-        //state.mouse.lerp(state.currMouse, 0.05);
-        //updateSpherePosition(state.time);
+        const rotationSpeed = settings.rotationSpeed;
+        jellyCamera.position.x = Math.sin(state.time * rotationSpeed) * 2;
+        jellyCamera.position.z = Math.cos(state.time * rotationSpeed) * 2;
+        jellyCamera.lookAt(jellyScene.position);
+
         jellyRenderer.render(jellyScene, jellyCamera);
     }
 }
 
+
+
 function settings_Jelly() {
   jellyGUI = new dat.GUI();
-  /*
-  jellyGUI.add(settings, "thresholdLow", 0, 1, 0.01).onChange(function(value) {
-    thresholdLow = value;
-  });
-  jellyGUI.add(settings, "thresholdMid", 0, 1, 0.01).onChange(function(value) {
-    thresholdMid = value;
-  });
-  jellyGUI.add(settings, "thresholdHigh", 0, 1, 0.01).onChange(function(value) {
-    thresholdHigh = value;
-  });*/
   jellyGUI.add(settings, "LFAttenuation", 0, 5, 0.01).onChange(function(value) {
     LFAttenuation = value;
   });
