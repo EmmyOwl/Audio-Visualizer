@@ -1,14 +1,26 @@
 import { createSculptureWithGeometry } from 'https://unpkg.com/shader-park-core/dist/shader-park-core.esm.js';
 import { spCode } from '/sp-code.js';
 
-let jellyScene, jellyCamera, jellyRenderer, jellyOrbitControls, state, LFAttenuation, MFAttenuation, HFAttenuation, fftSize, jellyMesh, jellyGeometry, treble, jellyGUI;
+let jellyScene,
+    jellyCamera,
+    jellyRenderer, 
+    jellyOrbitControls, 
+    state, 
+    LFAttenuation, 
+    MFAttenuation, 
+    HFAttenuation, 
+    jellyMesh, 
+    jellyGeometry, 
+    distortion, 
+    jellyGUI;
 
+// initial GUI settings    
 var settings = {
     rotationSpeed: 0.5,
     LFAttenuation: 1,
     MFAttenuation: 1,
     HFAttenuation: 1,
-    treble: 1,
+    distortion: 1,
 };
 
 function initJellyVisualizer(mic) {
@@ -16,8 +28,7 @@ function initJellyVisualizer(mic) {
     LFAttenuation = settings.LFAttenuation;
     MFAttenuation = settings.MFAttenuation;
     HFAttenuation = settings.HFAttenuation;
-    treble = settings.treble;
-    fftSize = 256;
+    distortion = settings.distortion;
 
     jellyScene = new THREE.Scene();
 
@@ -38,39 +49,33 @@ function initJellyVisualizer(mic) {
     clock = new THREE.Clock();
 
     state = {
-        mouse: new THREE.Vector3(),
-        currMouse: new THREE.Vector3(),
-        pointerDown: 0.0,
-        currPointerDown: 0.0,
-        audio: 0.0,
-        currAudio: 0.0,
         time: 0.0,
     }
 
+    // create sphere
     jellyGeometry = new THREE.SphereGeometry(2, 45, 45);
-
+    
+    // pass sphere and paramters into shader park
     jellyMesh = createSculptureWithGeometry(jellyGeometry, spCode(), () => ({
         time: state.time,
         audioLow: microphone.lowFrequency,
         audioMid: microphone.midFrequency,
         audioHigh: microphone.highFrequency,
         bassFrequency: microphone.bassFrequency,
-        mouse: state.mouse,
         LFAttenuation: LFAttenuation,
         MFAttenuation: MFAttenuation,
         HFAttenuation: HFAttenuation,
         _scale: .5,
-        treble: treble,
+        distortion: settings.distortion,
     }));
 
     jellyScene.add(jellyMesh);
 
-    // Add Controlls
+    // add controlls
     jellyOrbitControls = new THREE.OrbitControls(jellyCamera, jellyRenderer.domElement, {
         enableDamping: true,
         dampingFactor: 0.5,
         zoomSpeed: 0.6,
-        rotateSpeed: 0.5,
     });
 
     jellyOrbitControls.minDistance = 1;
@@ -81,16 +86,14 @@ function initJellyVisualizer(mic) {
     animateJellyVisualizer();
     settings_Jelly();
 
-
+    // stop visualizer and GUI
     return {
         stop: function () {
             console.log("Stopping jelly visualizer");
-
             window.cancelAnimationFrame(jellyAnimationId);
             document.body.removeChild(jellyRenderer.domElement);
             jellyOrbitControls.dispose();
             jellyGUI.destroy();
-            // Remove event listeners
             window.removeEventListener("resize", jellyOnWindowResize);
         },
     };
@@ -100,21 +103,22 @@ let jellyAnimationId;
 
 function animateJellyVisualizer() {
     jellyAnimationId = requestAnimationFrame(animateJellyVisualizer);
-    state.time += clock.getDelta();
-
+    state.time += clock.getDelta(); // create constant motion
     if (microphone.initialized) {
         jellyOrbitControls.update();
 
+        // get frequency bands and normalize
         const bands = microphone.getFrequencyBands();
-        const lowFrequency = bands.low / fftSize;
-        const midFrequency = bands.mid / fftSize;
-        const highFrequency = bands.high / fftSize;
+        const lowFrequency = bands.low / 255;
+        const midFrequency = bands.mid / 255;
+        const highFrequency = bands.high / 255;
 
         microphone.lowFrequency = lowFrequency
         microphone.midFrequency = midFrequency;
         microphone.highFrequency = highFrequency;
 
-        const rotationSpeed = settings.rotationSpeed;
+        // camera rotation
+        const rotationSpeed = 0.5;
         jellyCamera.position.x = Math.sin(state.time * rotationSpeed) * 2;
         jellyCamera.position.z = Math.cos(state.time * rotationSpeed) * 2;
         jellyCamera.lookAt(jellyScene.position);
@@ -124,7 +128,7 @@ function animateJellyVisualizer() {
 }
 
 
-
+// set up UI parameters for jelly visualizer
 function settings_Jelly() {
   jellyGUI = new dat.GUI();
   jellyGUI.add(settings, "LFAttenuation", 0, 5, 0.01).onChange(function(value) {
@@ -136,20 +140,11 @@ function settings_Jelly() {
   jellyGUI.add(settings, "HFAttenuation", 0, 10, 0.01).onChange(function(value) {
     HFAttenuation = value;
   });
-  jellyGUI.add(settings, "treble", 0, 2, 0.01).onChange(function(value) {
-    jellyMesh.material.uniforms.treble.value = value;
+  jellyGUI.add(settings, "distortion", 0, 5, 0.1).onChange(function(value) {
+    jellyMesh.material.uniforms.distortion.value = value;
   });
 }
-/*
-function updateSpherePosition(time) {
-    const x = Math.sin(time);
-    const y = Math.sin(time * 2) * 0.5;
-    const z = Math.cos(time) * 0;
-    jellyMesh.position.set(x, y, z);
-  }*/
   
-
-
 function jellyOnWindowResize() {
     jellyCamera.aspect = window.innerWidth / window.innerHeight;
     jellyCamera.updateProjectionMatrix();

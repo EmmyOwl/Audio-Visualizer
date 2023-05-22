@@ -72,44 +72,65 @@ function createGeometry() {
 
 
     // Define a new torus geometry
-    var torusGeometry = new THREE.TorusGeometry(5, 1, 16, 100);
+    var torusGeometry = new THREE.TorusGeometry(4, 1, 16, 100);
 
     // Define a new material for the torus
-    var torusMaterial = new THREE.MeshLambertMaterial({
-        color: 0x00ff00,
-        wireframe: true
+    var torusMaterial = new THREE.MeshPhongMaterial({
+        color: 0xff00ff,
+        shininess: 100,
+        specular: 0xc0c0ff,
+        transparent: true,
+        opacity: 0.9
     });
 
-    // Create a mesh using the new torus geometry and material
-    var torus = new THREE.Mesh(torusGeometry, torusMaterial);
-    torus.position.set(0, 0, 0);
 
-    // Add the torus mesh to the group
-    group.add(torus);
 
+
+     // 创建曲面几何体
+     var sphereGeometry = new THREE.SphereGeometry(13, 32, 32);
+     var sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x7F00FF, wireframe: true });
+     var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+     sphere.position.set(0, 0, 0);
+     group.add(sphere);
+
+
+
+    var coneGeometry = new THREE.ConeGeometry(10, 20, 32);
+    var coneMaterial = new THREE.MeshBasicMaterial({ color: 0x00FFFF, wireframe: true });
+    var cone = new THREE.Mesh(coneGeometry, coneMaterial);
+    cone.position.set(50, 0, 0);
+    group.add(cone);
+
+
+    // ...
+    var boxGeometry = new THREE.BoxGeometry(20, 20, 20); 
+    var boxMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00,wireframe: true }); 
+    var box = new THREE.Mesh(boxGeometry, boxMaterial); 
+    box.position.set(-50, 0, 0); 
+    group.add(box); 
+
+  
     var clock = new THREE.Clock();
 
     function animate() {
         requestAnimationFrame(animate);
 
-        // Rotate the torus around the Y-axis
-        torus.rotation.y += 0.01;
+        // 旋转立方体和圆柱体
+        sphere.rotation.x += 0.01;
+        sphere.rotation.y += 0.01;
+        cone.rotation.z += 0.01;
 
-        // Update the clock and get the elapsed time
+
+        // 更新时钟并获取经过的时间
         var elapsedTime = clock.getElapsedTime();
 
-        // Rotate the torus around the X-axis using the elapsed time
-        torus.rotation.x = elapsedTime * 0.5;
-
-        // Rotate the torus around the Z-axis using the elapsed time
-        torus.rotation.z = elapsedTime * 0.3;
     }
 
     animate();
 
 
 
-    return { ball, plane, plane2, torus };
+    return { ball, plane, plane2, cone, sphere, box };
 }
 
 function createLights() {
