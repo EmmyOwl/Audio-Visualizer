@@ -9,7 +9,7 @@ export function spCode() {
       let HFAttenuation = input();
       let distortion = input();
 
-      setMaxIterations(3);
+      setMaxIterations(5);
       let s = getSpace();
       let r = getRayDirection();
 

@@ -12,6 +12,7 @@ class Microphone {
             this.microphone.connect(this.analyser);
             this.initialized = true;
             this.prevBands = {
+                bass: 0,
                 low: 0,
                 mid: 0,
                 high: 0

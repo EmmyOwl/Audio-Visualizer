@@ -32,8 +32,7 @@ function initJellyVisualizer(mic) {
 
     jellyScene = new THREE.Scene();
 
-    jellyCamera = new THREE.PerspectiveCamera(
-        75,
+    jellyCamera = new THREE.PerspectiveCamera(75,
         window.innerWidth / window.innerHeight,
         0.1,
         1000
@@ -57,7 +56,6 @@ function initJellyVisualizer(mic) {
     
     // pass sphere and paramters into shader park
     jellyMesh = createSculptureWithGeometry(jellyGeometry, spCode(), () => ({
-        time: state.time,
         audioLow: microphone.lowFrequency,
         audioMid: microphone.midFrequency,
         audioHigh: microphone.highFrequency,
@@ -101,6 +99,8 @@ function initJellyVisualizer(mic) {
 
 let jellyAnimationId;
 
+
+// update frames
 function animateJellyVisualizer() {
     jellyAnimationId = requestAnimationFrame(animateJellyVisualizer);
     state.time += clock.getDelta(); // create constant motion
@@ -144,7 +144,8 @@ function settings_Jelly() {
     jellyMesh.material.uniforms.distortion.value = value;
   });
 }
-  
+
+// handle window resize  
 function jellyOnWindowResize() {
     jellyCamera.aspect = window.innerWidth / window.innerHeight;
     jellyCamera.updateProjectionMatrix();

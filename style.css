@@ -12,7 +12,7 @@ body {
 }
 
 canvas {
-  background: black;
+  background: transparent;
 }
 
 .dg.ac {

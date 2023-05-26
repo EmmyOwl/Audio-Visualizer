@@ -1,43 +1,43 @@
-let leilaScene, leilaCamera, leilaRenderer, group, plane, plane2, ball, leilaAmbientLight, leilaSpotLight, leilaOrbitControls;
+let orbsScene, orbsCamera, orbsRenderer, group, plane, plane2, ball, orbsAmbientLight, orbsSpotLight, orbsOrbitControls;
 
 var noise = new SimplexNoise();
 
-function initLeilaVisualizer(mic) {
+function initOrbsVisualizer(mic) {
     microphone = mic;
-    leilaScene = new THREE.Scene();
+    orbsScene = new THREE.Scene();
     group = new THREE.Group();
 
-    leilaCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    leilaCamera.position.set(0, 0, 100);
-    leilaCamera.lookAt(leilaScene.position);
-    leilaScene.add(leilaCamera);
+    orbsCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    orbsCamera.position.set(0, 0, 100);
+    orbsCamera.lookAt(orbsScene.position);
+    orbsScene.add(orbsCamera);
 
-    leilaRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    leilaRenderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(leilaRenderer.domElement);
+    orbsRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    orbsRenderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(orbsRenderer.domElement);
 
-    leilaOrbitControls = new THREE.OrbitControls(leilaCamera, leilaRenderer.domElement);
-    leilaOrbitControls.target.set(0, 0, 0);
-    leilaOrbitControls.enablePan = false;
+    orbsOrbitControls = new THREE.OrbitControls(orbsCamera, orbsRenderer.domElement);
+    orbsOrbitControls.target.set(0, 0, 0);
+    orbsOrbitControls.enablePan = false;
 
     const geometries = createGeometry();
     createLights();
 
-    leilaScene.add(group);
+    orbsScene.add(group);
 
-    window.addEventListener('resize', leilaOnWindowResize, false);
-    animateLeilaVisualizer(geometries);
+    window.addEventListener('resize', orbsOnWindowResize, false);
+    animateOrbsVisualizer(geometries);
 
     return {
         stop: function () {
-            console.log("Stopping Leila visualizer");
+            console.log("Stopping Orbs visualizer");
 
-            window.cancelAnimationFrame(leilaAnimationId);
-            document.body.removeChild(leilaRenderer.domElement);
-            leilaOrbitControls.dispose();
+            window.cancelAnimationFrame(orbsAnimationId);
+            document.body.removeChild(orbsRenderer.domElement);
+            orbsOrbitControls.dispose();
 
             // Remove event listeners
-            window.removeEventListener('resize', leilaOnWindowResize);
+            window.removeEventListener('resize', orbsOnWindowResize);
         },
     };
 }
@@ -134,44 +134,44 @@ function createGeometry() {
 }
 
 function createLights() {
-    leilaAmbientLight = new THREE.AmbientLight(0xaaaaaa);
-    leilaScene.add(leilaAmbientLight);
+    orbsAmbientLight = new THREE.AmbientLight(0xaaaaaa);
+    orbsScene.add(orbsAmbientLight);
 
-    leilaSpotLight = new THREE.SpotLight(0xffffff);
-    leilaSpotLight.intensity = 0.9;
-    leilaSpotLight.position.set(-10, 40, 20);
-    leilaSpotLight.lookAt(ball);
-    leilaSpotLight.castShadow = true;
-    leilaScene.add(leilaSpotLight);
+    orbsSpotLight = new THREE.SpotLight(0xffffff);
+    orbsSpotLight.intensity = 0.9;
+    orbsSpotLight.position.set(-10, 40, 20);
+    orbsSpotLight.lookAt(ball);
+    orbsSpotLight.castShadow = true;
+    orbsScene.add(orbsSpotLight);
 
-    leilaAmbientLight = new THREE.AmbientLight(0xaaaaaa);
-    leilaScene.add(leilaAmbientLight);
+    orbsAmbientLight = new THREE.AmbientLight(0xaaaaaa);
+    orbsScene.add(orbsAmbientLight);
 
-    leilaSpotLight = new THREE.SpotLight(0xffffff);
-    leilaSpotLight.intensity = 0.9;
-    leilaSpotLight.position.set(-10, 40, 20);
-    leilaSpotLight.lookAt(ball);
-    leilaSpotLight.castShadow = true;
-    leilaScene.add(leilaSpotLight);
+    orbsSpotLight = new THREE.SpotLight(0xffffff);
+    orbsSpotLight.intensity = 0.9;
+    orbsSpotLight.position.set(-10, 40, 20);
+    orbsSpotLight.lookAt(ball);
+    orbsSpotLight.castShadow = true;
+    orbsScene.add(orbsSpotLight);
 
     // Add a directional light
-    leilaDirectionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    leilaDirectionalLight.position.set(1, 1, 1);
-    leilaScene.add(leilaDirectionalLight);
+    orbsDirectionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    orbsDirectionalLight.position.set(1, 1, 1);
+    orbsScene.add(orbsDirectionalLight);
 }
 
 
-let leilaAnimationId;
+let orbsAnimationId;
 
-function animateLeilaVisualizer(geometries) {
-    leilaAnimationId = requestAnimationFrame(() => animateLeilaVisualizer(geometries));
+function animateOrbsVisualizer(geometries) {
+    orbsAnimationId = requestAnimationFrame(() => animateOrbsVisualizer(geometries));
 
     if (microphone.initialized) {
         updateGeometry(geometries.ball, geometries.plane, geometries.plane2);
 
         group.rotation.y += 0.005;
-        leilaRenderer.render(leilaScene, leilaCamera);
-        leilaOrbitControls.update();
+        orbsRenderer.render(orbsScene, orbsCamera);
+        orbsOrbitControls.update();
     }
 }
 
@@ -260,11 +260,11 @@ function max(arr) {
     return arr.reduce(function (a, b) { return Math.max(a, b); })
 }
 
-function leilaOnWindowResize() {
-    leilaCamera.aspect = window.innerWidth / window.innerHeight;
-    leilaCamera.updateProjectionMatrix();
-    leilaRenderer.setSize(window.innerWidth, window.innerHeight);
+function orbsOnWindowResize() {
+    orbsCamera.aspect = window.innerWidth / window.innerHeight;
+    orbsCamera.updateProjectionMatrix();
+    orbsRenderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-//window.initLeilaVisualizer = initLeilaVisualizer(mic);
+//window.initorbsVisualizer = initorbsVisualizer(mic);
 

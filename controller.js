@@ -24,7 +24,7 @@ let visualizerControllerItem = visualizerController.add(visualizerSettings, "vis
   "2D",
   "Sphere",
   "Cubes",
-  "Leila",
+  "Orbs",
   "Raymarching",
   "Jelly",
 ]).onChange(async (selectedVisualizer) => {
@@ -33,9 +33,9 @@ let visualizerControllerItem = visualizerController.add(visualizerSettings, "vis
     currentVisualizer.stop();
   }
   if (selectedVisualizer === "none") {
-    visualizerController.domElement.style.display = 'none'; // Hide the dropdown GUI
+    visualizerController.domElement.style.display = 'none';
   } else {
-    visualizerController.domElement.style.display = 'block'; // Show the dropdown GUI
+    visualizerController.domElement.style.display = 'block';
   }
   const mic = new Microphone(512);
   currentVisualizer = await changeVisualizer(selectedVisualizer, mic);
@@ -46,7 +46,6 @@ let visualizerControllerItem = visualizerController.add(visualizerSettings, "vis
 async function changeVisualizer(selectedVisualizer, mic) {
   console.log('Changing visualizer to:', selectedVisualizer);
   console.log('Current visualizer before change:', currentVisualizer);
-  //console.log(mic);
   await mic.ready;
   //console.log(mic.initialized);
 
@@ -74,8 +73,8 @@ async function changeVisualizer(selectedVisualizer, mic) {
     case "Cubes":
       newVisualizer = initCubeVisualizer(mic);
       break;
-    case "Leila":
-      newVisualizer = initLeilaVisualizer(mic);
+    case "Orbs":
+      newVisualizer = initOrbsVisualizer(mic);
       break;
     case "Raymarching":
       newVisualizer = initRayMarchingVisualizer(mic);
@@ -87,9 +86,7 @@ async function changeVisualizer(selectedVisualizer, mic) {
     default:
       newVisualizer = null;
   }
-
   //console.log('New visualizer:', newVisualizer);
-  //return Promise.resolve(newVisualizer);
   return newVisualizer;
 }
 
@@ -113,21 +110,10 @@ function hideWelcomeContainer() {
   welcomeContainer.style.display = "none";
 }
 
-
-function updateControlsVisibility(selectedVisualizer) {
-  if (selectedVisualizer === "none") {
-    gui.domElement.style.display = 'none';
-  } else {
-    gui.domElement.style.display = 'block';
-  }
-}
-
-
-
 const suggested2D = document.getElementById("suggested2D");
 const suggestedSphere = document.getElementById("suggestedSphere");
 const suggestedCubes = document.getElementById("suggestedCube");
-const suggestedLeila = document.getElementById("suggestedLeila");
+const suggestedOrbs = document.getElementById("suggestedOrbs");
 const suggestedRaymarching = document.getElementById("suggestedRaymarching");
 const suggestedJelly = document.getElementById("suggestedJelly");
 
@@ -143,9 +129,9 @@ suggestedCubes.addEventListener(
   "click",
   async () => await startVisualizerFromSuggested("Cubes")
 );
-suggestedLeila.addEventListener(
+suggestedOrbs.addEventListener(
   "click",
-  async () => await startVisualizerFromSuggested("Leila")
+  async () => await startVisualizerFromSuggested("Orbs")
 );
 suggestedRaymarching.addEventListener(
   "click",
