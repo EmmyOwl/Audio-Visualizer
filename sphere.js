@@ -16,7 +16,7 @@ const sphereSettings = {
     color: 0xffffff,
 }
 
-function init3DVisualizer(mic) {
+function initSphereVisualizer(mic) {
     microphone = mic;
     sensitivity = sphereSettings.sensitivity;
 
@@ -177,4 +177,4 @@ function threeJSOnWindowResize() {
     threeJSRenderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-export { init3DVisualizer };
+export { initSphereVisualizer };

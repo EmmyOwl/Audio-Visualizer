@@ -1,13 +1,16 @@
 import { initRayMarchingVisualizer } from "./raymarching.js";
 import { initJellyVisualizer } from "./jelly.js"
-import { init3DVisualizer } from "./sphere.js";
+import { initSphereVisualizer } from "./sphere.js";
+import { startAutoRun, stopAutoRun } from "./autorun.js";
 
 
 let currentVisualizer = null;
 let visualizerController;
+let mic;
 
 let visualizerSettings = {
   visualizer: "none",
+  autoRun: false,
 };
 
 visualizerController = new dat.GUI({ autoPlace: false });
@@ -18,6 +21,13 @@ visualizerController.domElement.style.position = 'absolute';
 visualizerController.domElement.style.left = '0px';
 visualizerController.domElement.style.top = '0px';
 
+visualizerController.add(visualizerSettings, 'autoRun').name('Auto Run Visualizers').onChange(value => {
+  if (value) {
+    startAutoRun(mic, changeVisualizer, currentVisualizer);
+  } else {
+    stopAutoRun();
+  }
+});
 
 let visualizerControllerItem = visualizerController.add(visualizerSettings, "visualizer", [
   "none",
@@ -37,8 +47,17 @@ let visualizerControllerItem = visualizerController.add(visualizerSettings, "vis
   } else {
     visualizerController.domElement.style.display = 'block';
   }
-  const mic = new Microphone(512);
-  currentVisualizer = await changeVisualizer(selectedVisualizer, mic);
+  if (!visualizerSettings.autoRun) {
+    currentVisualizer = await changeVisualizer(selectedVisualizer, mic);
+} else {
+    if (currentVisualizer && currentVisualizer.gui) {
+        // Here, assume that each visualizer returns an object with a "gui" property
+        // which refers to its dat.GUI instance. If the visualizer has a GUI, hide it.
+        currentVisualizer.gui.domElement.style.display = 'none';
+    }
+}
+
+  //currentVisualizer = await changeVisualizer(selectedVisualizer, mic);
 });
 
 
@@ -46,20 +65,10 @@ let visualizerControllerItem = visualizerController.add(visualizerSettings, "vis
 async function changeVisualizer(selectedVisualizer, mic) {
   console.log('Changing visualizer to:', selectedVisualizer);
   console.log('Current visualizer before change:', currentVisualizer);
-  await mic.ready;
+  //await mic.ready;
   //console.log(mic.initialized);
 
   let newVisualizer;
-
-  // Wait for the mic to be initialized
-  await new Promise((resolve) => {
-    const checkInterval = setInterval(() => {
-      if (mic.initialized) {
-        clearInterval(checkInterval);
-        resolve();
-      }
-    }, 100);
-  });
 
   switch (selectedVisualizer) {
     case "2D":
@@ -68,7 +77,7 @@ async function changeVisualizer(selectedVisualizer, mic) {
       newVisualizer = init2DVisualizer(mic);
       break;
     case "Sphere":
-      newVisualizer = init3DVisualizer(mic);
+      newVisualizer = initSphereVisualizer(mic);
       break;
     case "Cubes":
       newVisualizer = initCubeVisualizer(mic);
@@ -82,11 +91,10 @@ async function changeVisualizer(selectedVisualizer, mic) {
     case "Jelly":
       newVisualizer = initJellyVisualizer(mic);
       break;
-    // Add more cases for other visualizers
+
     default:
       newVisualizer = null;
   }
-  //console.log('New visualizer:', newVisualizer);
   return newVisualizer;
 }
 
@@ -100,7 +108,6 @@ async function startVisualizerFromSuggested(visualizerType) {
   if (currentVisualizer) {
     currentVisualizer.stop();
   }
-  const mic = new Microphone(512);
   currentVisualizer = await changeVisualizer(visualizerType, mic);
 }
 
@@ -143,9 +150,9 @@ suggestedJelly.addEventListener(
 );
 
 async function initController() {
-  const microphone = new Microphone(512);
+  mic = new Microphone(512);
   const selectedVisualizer = visualizerSettings.visualizer;
-  currentVisualizer = await changeVisualizer(selectedVisualizer, microphone);
+  currentVisualizer = await changeVisualizer(selectedVisualizer, mic);
 }
 
 
