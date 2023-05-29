@@ -51,21 +51,16 @@ let visualizerControllerItem = visualizerController.add(visualizerSettings, "vis
     currentVisualizer = await changeVisualizer(selectedVisualizer, mic);
 } else {
     if (currentVisualizer && currentVisualizer.gui) {
-        // Here, assume that each visualizer returns an object with a "gui" property
-        // which refers to its dat.GUI instance. If the visualizer has a GUI, hide it.
         currentVisualizer.gui.domElement.style.display = 'none';
     }
 }
-
-  //currentVisualizer = await changeVisualizer(selectedVisualizer, mic);
 });
 
 
 
 async function changeVisualizer(selectedVisualizer, mic) {
   console.log('Changing visualizer to:', selectedVisualizer);
-  console.log('Current visualizer before change:', currentVisualizer);
-  //await mic.ready;
+  //console.log('Current visualizer before change:', currentVisualizer);
   //console.log(mic.initialized);
 
   let newVisualizer;
