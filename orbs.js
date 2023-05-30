@@ -104,7 +104,7 @@ function createGeometry() {
 
     // ...
     var boxGeometry = new THREE.BoxGeometry(20, 20, 20); 
-    var boxMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00,wireframe: true }); 
+    var boxMaterial = new THREE.MeshBasicMaterial({  color: 0xFF00FF, emissive: 0xFF00FF, emissiveIntensity: 1, transparent: true, opacity: 0.7 }); 
     var box = new THREE.Mesh(boxGeometry, boxMaterial); 
     box.position.set(-50, 0, 0); 
     group.add(box); 
@@ -117,8 +117,9 @@ function createGeometry() {
 
         // 旋转立方体和圆柱体
         sphere.rotation.x += 0.01;
-        sphere.rotation.y += 0.01;
+        sphere.rotation.y += 0.02;
         cone.rotation.z += 0.01;
+        box.rotation.x += 0.02;
 
 
         // 更新时钟并获取经过的时间
