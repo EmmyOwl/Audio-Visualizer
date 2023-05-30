@@ -8,7 +8,11 @@ body {
   font-family: helvetica, arial, sans-serif;
   background-color: #000000;
   margin: 0;
-  overflow: hidden;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; 
 }
 
 canvas {
@@ -35,6 +39,9 @@ form {
 
 #welcomeContainer {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
   display: flex;
@@ -43,25 +50,50 @@ form {
   align-items: center;
 }
 
+
 #welcomeText {
-  color: white;
+  font-family: 'Share Tech Mono', sans-serif;
+  color: rgb(211, 161, 206);
   font-size: 3rem;
-  margin-bottom: 3rem;
+  padding: 2rem;
+  text-shadow: 0 0 10px rgb(12, 68, 68), 0 0 20px rgb(24, 37, 210), 0 0 30px #00f, 0 0 40px #0ff;
+  grid-row: 2 / 3;
 }
 
+
 #suggestedVisualizers {
-  display: flex;
-  justify-content: space-around;
-  width: 75%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  justify-items: center;
+  width: 80%;
+  grid-row: 1 / 3;
+  gap: 2rem;
 }
 
 .suggestedVisualizer {
-  color: white;
+  font-family: 'Share Tech Mono', sans-serif;
+  color: rgb(173, 152, 152);
   font-size: 1.5rem;
   cursor: pointer;
   user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  transition: background 0.3s;
+}
+
+.suggestedVisualizer video {
+  width: 260px;
+  height: 260px;
+  object-fit: cover;
+  margin-bottom: 1rem;
 }
 
 .suggestedVisualizer:hover {
+  background: rgba(255, 255, 255, 0.2);
   color: lightblue;
 }
