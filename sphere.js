@@ -70,6 +70,9 @@ function initSphereVisualizer(mic) {
             document.getElementById('visualizerContainer').removeChild(sphereRenderer.domElement);
             sphereOrbitControls.dispose();
             gui.destroy();
+            if (gui && gui.domElement.parentNode) {
+                gui.domElement.parentNode.removeChild(gui.domElement);
+            }
         },
     };
 }
@@ -132,7 +135,8 @@ function animateSphere() {
 }
 
 function settingsSphere() {
-    gui = new dat.GUI();
+    gui = new dat.GUI({ autoPlace: false });
+    document.getElementById('guiContainer').appendChild(gui.domElement);
     gui.add(sphereSettings, 'sensitivity', 0, 10, 0.01).onChange((value) => {
         sensitivity = value;
     });

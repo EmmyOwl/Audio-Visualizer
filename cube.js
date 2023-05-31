@@ -59,7 +59,7 @@ function initCubeVisualizer(mic) {
   light.position.set(1, 1, 1);
   cubeScene.add(light);
 
-  light1 = new THREE.DirectionalLight(0xff0000, 1); 
+  light1 = new THREE.DirectionalLight(0xff0000, 1);
   light1.position.set(1, 1, 1);
   cubeScene.add(light1);
 
@@ -86,6 +86,9 @@ function initCubeVisualizer(mic) {
       document.getElementById('visualizerContainer').removeChild(cubeRenderer.domElement);
       cubeOrbitControls.dispose();
       cubeGUI.destroy();
+      if (cubeGUI && cubeGUI.domElement.parentNode) {
+        cubeGUI.domElement.parentNode.removeChild(cubeGUI.domElement);
+    }
       window.removeEventListener("resize", cubeOnWindowResize);;
     },
   };
@@ -97,7 +100,7 @@ function applyThreshold(value, threshold) {
 
 let cubeAnimationId;
 let prevBassFrequency = 0;
-let bassHitThreshold = 0.05; 
+let bassHitThreshold = 0.05;
 
 function animateCubeVisualizer() {
   cubeAnimationId = requestAnimationFrame(animateCubeVisualizer);
@@ -123,7 +126,7 @@ function animateCubeVisualizer() {
 
     cubeScene.traverse(function (object) {
       if (object.isMesh) {
-        object.rotation.x = elapsedTime * lowFrequency  * settings.cubeSpeed;
+        object.rotation.x = elapsedTime * lowFrequency * settings.cubeSpeed;
         object.rotation.z = elapsedTime * highFrequency * settings.cubeSpeed / 2;
       }
     });
@@ -133,7 +136,7 @@ function animateCubeVisualizer() {
     // Detect a bass hit
     if (bassFrequency - prevBassFrequency > settings.bassHitThreshold) {
       console.log('Bass hit detected!');
-      
+
       // Switch between the lights
       light1.visible = !light1.visible;
       light2.visible = !light2.visible;
@@ -146,7 +149,8 @@ function animateCubeVisualizer() {
 }
 
 function settings_Cube() {
-  cubeGUI = new dat.GUI();
+  cubeGUI = new dat.GUI({ autoPlace: false });
+  document.getElementById('guiContainer').appendChild(cubeGUI.domElement);
   cubeGUI.add(settings, "cubeSpeed", 0, 0.1, 0.001);
   cubeGUI.add(settings, "bassHitThreshold", 0, 0.1, 0.01);
 

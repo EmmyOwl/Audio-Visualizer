@@ -229,6 +229,9 @@ function initRayMarchingVisualizer(mic) {
       console.log("Stopping raymarching visualizer");
       window.cancelAnimationFrame(rayMarchingAnimationId);
       gui.destroy();
+      if (gui && gui.domElement.parentNode) {
+        gui.domElement.parentNode.removeChild(gui.domElement);
+      }
       //rayMarchingRenderer.domElement.remove();
       document.getElementById('visualizerContainer').removeChild(rayMarchingRenderer.domElement);
       document.body.style.cursor = "default";
@@ -264,7 +267,8 @@ function setup_RayMarching() {
 }
 
 function settings_RayMarching() {
-  gui = new dat.GUI();
+  gui = new dat.GUI({ autoPlace: false });
+  document.getElementById('guiContainer').appendChild(gui.domElement);
   gui.add(settings, "planetRotation", -0.5, 0.5, 0.01);
   gui.add(settings, "orbitDistance", -0.4, 0.4, 0.01);
   gui.add(settings, "orbitSpeed", -0.2, 0.2, 0.01);

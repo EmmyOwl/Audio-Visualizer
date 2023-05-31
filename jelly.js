@@ -3,15 +3,15 @@ import { spCode } from '/sp-code.js';
 
 let jellyScene,
     jellyCamera,
-    jellyRenderer, 
-    jellyOrbitControls, 
-    state, 
-    LFAttenuation, 
-    MFAttenuation, 
-    HFAttenuation, 
-    jellyMesh, 
-    jellyGeometry, 
-    distortion, 
+    jellyRenderer,
+    jellyOrbitControls,
+    state,
+    LFAttenuation,
+    MFAttenuation,
+    HFAttenuation,
+    jellyMesh,
+    jellyGeometry,
+    distortion,
     jellyGUI;
 
 // initial GUI settings    
@@ -54,7 +54,7 @@ function initJellyVisualizer(mic) {
 
     // create sphere
     jellyGeometry = new THREE.SphereGeometry(2, 45, 45);
-    
+
     // pass sphere and paramters into shader park
     jellyMesh = createSculptureWithGeometry(jellyGeometry, spCode(), () => ({
         audioLow: microphone.lowFrequency,
@@ -93,6 +93,9 @@ function initJellyVisualizer(mic) {
             document.getElementById('visualizerContainer').removeChild(jellyRenderer.domElement);
             jellyOrbitControls.dispose();
             jellyGUI.destroy();
+            if (jellyGUI && jellyGUI.domElement.parentNode) {
+                jellyGUI.domElement.parentNode.removeChild(jellyGUI.domElement);
+            }
             window.removeEventListener("resize", jellyOnWindowResize);
         },
     };
@@ -131,19 +134,20 @@ function animateJellyVisualizer() {
 
 // set up UI parameters for jelly visualizer
 function settings_Jelly() {
-  jellyGUI = new dat.GUI();
-  jellyGUI.add(settings, "LFAttenuation", 0, 5, 0.01).onChange(function(value) {
-    LFAttenuation = value;
-  });
-  jellyGUI.add(settings, "MFAttenuation", 0, 10, 0.01).onChange(function(value) {
-    MFAttenuation = value;
-  });
-  jellyGUI.add(settings, "HFAttenuation", 0, 10, 0.01).onChange(function(value) {
-    HFAttenuation = value;
-  });
-  jellyGUI.add(settings, "distortion", 0, 5, 0.1).onChange(function(value) {
-    jellyMesh.material.uniforms.distortion.value = value;
-  });
+    jellyGUI = new dat.GUI({ autoPlace: false });
+    document.getElementById('guiContainer').appendChild(jellyGUI.domElement);
+    jellyGUI.add(settings, "LFAttenuation", 0, 5, 0.01).onChange(function (value) {
+        LFAttenuation = value;
+    });
+    jellyGUI.add(settings, "MFAttenuation", 0, 10, 0.01).onChange(function (value) {
+        MFAttenuation = value;
+    });
+    jellyGUI.add(settings, "HFAttenuation", 0, 10, 0.01).onChange(function (value) {
+        HFAttenuation = value;
+    });
+    jellyGUI.add(settings, "distortion", 0, 5, 0.1).onChange(function (value) {
+        jellyMesh.material.uniforms.distortion.value = value;
+    });
 }
 
 // handle window resize  
