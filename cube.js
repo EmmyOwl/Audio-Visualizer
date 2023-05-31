@@ -77,14 +77,12 @@ function initCubeVisualizer(mic) {
 
   return {
     stop: function () {
-      console.log("Stopping cube visualizer"); // Replace [VisualizerName] with the corresponding visualizer name
+      console.log("Stopping cube visualizer");
 
       window.cancelAnimationFrame(cubeAnimationId);
       document.body.removeChild(cubeRenderer.domElement);
       cubeOrbitControls.dispose();
       cubeGUI.destroy();
-
-      // Remove event listeners
       window.removeEventListener("resize", cubeOnWindowResize);;
     },
   };
@@ -93,7 +91,6 @@ function initCubeVisualizer(mic) {
 function applyThreshold(value, threshold) {
   return value > threshold ? value : 0;
 };
-
 
 let cubeAnimationId;
 let prevBassFrequency = 0;
@@ -116,24 +113,20 @@ function animateCubeVisualizer() {
     let thresholdMid = 0.5;
     let thresholdHigh = 0.1;
 
-
     const bands = microphone.getFrequencyBands();
     const lowFrequency = applyThreshold(bands.low / 255, thresholdLow);
     const midFrequency = applyThreshold(bands.mid / 255, thresholdMid);
     const highFrequency = applyThreshold(bands.high / 255, thresholdHigh);
-    //const bassFrequency = applyThreshold(bands.bass / 255, thresholdBass);
-
 
     cubeScene.traverse(function (object) {
       if (object.isMesh) {
         object.rotation.x = elapsedTime * lowFrequency  * settings.cubeSpeed;
-        //object.rotation.y = elapsedTime * midFrequency / 100 * settings.cubeSpeed;
         object.rotation.z = elapsedTime * highFrequency * settings.cubeSpeed / 2;
       }
     });
 
     const bassFrequency = bands.bass / 255;
-    //console.log(bassFrequency);
+
     // Detect a bass hit
     if (bassFrequency - prevBassFrequency > settings.bassHitThreshold) {
       console.log('Bass hit detected!');
@@ -141,15 +134,12 @@ function animateCubeVisualizer() {
       // Switch between the lights
       light1.visible = !light1.visible;
       light2.visible = !light2.visible;
-      console.log(`light1.visible: ${light1.visible}, light2.visible: ${light2.visible}`);
+      //console.log(`light1.visible: ${light1.visible}, light2.visible: ${light2.visible}`);
     }
 
     prevBassFrequency = bassFrequency;
   }
-
-
   cubeRenderer.render(cubeScene, cubeCamera);
-  //   console.log(cubeCamera.parent);
 }
 
 function settings_Cube() {
@@ -158,7 +148,6 @@ function settings_Cube() {
   cubeGUI.add(settings, "bassHitThreshold", 0, 0.1, 0.01);
 
 }
-
 
 function cubeOnWindowResize() {
   cubeCamera.aspect = window.innerWidth / window.innerHeight;

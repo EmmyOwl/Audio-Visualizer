@@ -35,8 +35,6 @@ function initOrbsVisualizer(mic) {
             window.cancelAnimationFrame(orbsAnimationId);
             document.body.removeChild(orbsRenderer.domElement);
             orbsOrbitControls.dispose();
-
-            // Remove event listeners
             window.removeEventListener('resize', orbsOnWindowResize);
         },
     };
@@ -83,9 +81,6 @@ function createGeometry() {
         opacity: 0.9
     });
 
-
-
-
      // 创建曲面几何体
      var sphereGeometry = new THREE.SphereGeometry(13, 32, 32);
      var sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x7F00FF, wireframe: true });
@@ -93,14 +88,11 @@ function createGeometry() {
      sphere.position.set(0, 0, 0);
      group.add(sphere);
 
-
-
     var coneGeometry = new THREE.ConeGeometry(10, 20, 32);
     var coneMaterial = new THREE.MeshBasicMaterial({ color: 0x00FFFF, wireframe: true });
     var cone = new THREE.Mesh(coneGeometry, coneMaterial);
     cone.position.set(50, 0, 0);
     group.add(cone);
-
 
     // ...
     var boxGeometry = new THREE.BoxGeometry(20, 20, 20); 
@@ -109,7 +101,6 @@ function createGeometry() {
     box.position.set(-50, 0, 0); 
     group.add(box); 
 
-  
     var clock = new THREE.Clock();
 
     function animate() {
@@ -128,8 +119,6 @@ function createGeometry() {
     }
 
     animate();
-
-
 
     return { ball, plane, plane2, cone, sphere, box };
 }
@@ -160,7 +149,6 @@ function createLights() {
     orbsDirectionalLight.position.set(1, 1, 1);
     orbsScene.add(orbsDirectionalLight);
 }
-
 
 let orbsAnimationId;
 
@@ -267,5 +255,4 @@ function orbsOnWindowResize() {
     orbsRenderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-//window.initorbsVisualizer = initorbsVisualizer(mic);
 
