@@ -17,7 +17,7 @@ async function autoRunVisualizers(mic, changeVisualizer, currentVisualizer) {
   currentVisualizer = await changeVisualizer(visualizers[currentIndex], mic);
 
   currentIndex = (currentIndex + 1) % visualizers.length;
-  timeoutId = setTimeout(() => autoRunVisualizers(mic, changeVisualizer, currentVisualizer), 15000);
+  timeoutId = setTimeout(async () => await autoRunVisualizers(mic, changeVisualizer, currentVisualizer), 15000);
 }
 
 function startAutoRun(mic, changeVisualizer, currentVisualizer) {
@@ -28,6 +28,7 @@ function startAutoRun(mic, changeVisualizer, currentVisualizer) {
 function stopAutoRun() {
   isAutoRunning = false;
   clearTimeout(timeoutId);
+  currentIndex = 0;
 }
 
 export { startAutoRun, stopAutoRun };
