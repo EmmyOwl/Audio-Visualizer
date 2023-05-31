@@ -79,13 +79,13 @@ float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
-// Signed distance function to create the shapes
 float boxSize = 0.1;
 float sphereSize = 0.0001;
 float cursorSize = 0.05;
 float smoothingValue = 0.2;
 // float planetRotation = 0.1;
 
+// Signed distance function to create the shapes
 float sdf(vec3 p) {
   vec3 p1 = rotate(p, vec3(1.0,1.0,1.0), time * planetRotation);
 
