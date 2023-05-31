@@ -1,7 +1,7 @@
-
 console.log('check in autorun');
 let currentIndex = 0;
 let isAutoRunning = false;
+let timeoutId;
 
 const visualizers = ["2D", "Sphere", "Cubes", "Orbs", "Raymarching", "Jelly"];
 
@@ -17,7 +17,7 @@ async function autoRunVisualizers(mic, changeVisualizer, currentVisualizer) {
   currentVisualizer = await changeVisualizer(visualizers[currentIndex], mic);
 
   currentIndex = (currentIndex + 1) % visualizers.length;
-  setTimeout(() => autoRunVisualizers(mic, changeVisualizer, currentVisualizer), 15000);
+  timeoutId = setTimeout(() => autoRunVisualizers(mic, changeVisualizer, currentVisualizer), 15000);
 }
 
 function startAutoRun(mic, changeVisualizer, currentVisualizer) {
@@ -27,6 +27,7 @@ function startAutoRun(mic, changeVisualizer, currentVisualizer) {
 
 function stopAutoRun() {
   isAutoRunning = false;
+  clearTimeout(timeoutId);
 }
 
 export { startAutoRun, stopAutoRun };
