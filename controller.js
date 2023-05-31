@@ -102,7 +102,7 @@ async function startVisualizerFromSuggested(visualizerType) {
   visualizerController.domElement.style.display = 'block';
   console.log("current Visualizer in startfromSuggested:", currentVisualizer);
   if (currentVisualizer) {
-    currentVisualizer.stop();
+    await currentVisualizer.stop();
   }
   currentVisualizer = await changeVisualizer(visualizerType, mic);
 }

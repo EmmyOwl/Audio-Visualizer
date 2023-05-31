@@ -11,7 +11,7 @@ async function autoRunVisualizers(mic, changeVisualizer, currentVisualizer) {
   }
 
   if (currentVisualizer) {
-    currentVisualizer.stop();
+    await currentVisualizer.stop();
   }
 
   currentVisualizer = await changeVisualizer(visualizers[currentIndex], mic);

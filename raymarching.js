@@ -215,7 +215,6 @@ function initRayMarchingVisualizer(mic) {
   rayMarchingRenderer.setPixelRatio(window.devicePixelRatio);
   //document.body.appendChild(rayMarchingRenderer.domElement);
   document.getElementById('visualizerContainer').appendChild(rayMarchingRenderer.domElement);
-  console.log(window);
   document.body.style.cursor = "none";
 
   setup_RayMarching();
