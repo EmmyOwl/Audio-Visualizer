@@ -9,9 +9,6 @@ body {
   background-color: #000000;
   margin: 0;
   overflow: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh; 
 }
 
@@ -29,6 +26,19 @@ canvas {
   right: 10px;
   z-index: 1000;
 }
+
+#visualizerContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 500; 
+}
+
 
 
 form {
@@ -48,6 +58,7 @@ form {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  z-index: 600;
 }
 
 

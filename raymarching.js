@@ -213,7 +213,8 @@ function initRayMarchingVisualizer(mic) {
   // raymarching renderer
   rayMarchingRenderer = new THREE.WebGLRenderer();
   rayMarchingRenderer.setPixelRatio(window.devicePixelRatio);
-  document.body.appendChild(rayMarchingRenderer.domElement);
+  //document.body.appendChild(rayMarchingRenderer.domElement);
+  document.getElementById('visualizerContainer').appendChild(rayMarchingRenderer.domElement);
   console.log(window);
   document.body.style.cursor = "none";
 
@@ -228,7 +229,8 @@ function initRayMarchingVisualizer(mic) {
       console.log("Stopping raymarching visualizer");
       window.cancelAnimationFrame(rayMarchingAnimationId);
       gui.destroy();
-      rayMarchingRenderer.domElement.remove();
+      //rayMarchingRenderer.domElement.remove();
+      document.getElementById('visualizerContainer').removeChild(rayMarchingRenderer.domElement);
       document.body.style.cursor = "default";
     },
   };

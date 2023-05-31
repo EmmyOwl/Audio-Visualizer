@@ -32,7 +32,9 @@ function initCubeVisualizer(mic) {
 
   cubeRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   cubeRenderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(cubeRenderer.domElement);
+  //document.body.appendChild(cubeRenderer.domElement);
+  document.getElementById('visualizerContainer').appendChild(cubeRenderer.domElement);
+
 
   cubeOrbitControls = new THREE.OrbitControls(
     cubeCamera,
@@ -80,7 +82,8 @@ function initCubeVisualizer(mic) {
       console.log("Stopping cube visualizer");
 
       window.cancelAnimationFrame(cubeAnimationId);
-      document.body.removeChild(cubeRenderer.domElement);
+      //document.body.removeChild(cubeRenderer.domElement);
+      document.getElementById('visualizerContainer').removeChild(cubeRenderer.domElement);
       cubeOrbitControls.dispose();
       cubeGUI.destroy();
       window.removeEventListener("resize", cubeOnWindowResize);;

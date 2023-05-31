@@ -43,7 +43,8 @@ function initJellyVisualizer(mic) {
     jellyRenderer.setSize(window.innerWidth, window.innerHeight);
     jellyRenderer.setPixelRatio(window.devicePixelRatio);
     jellyRenderer.setClearColor(new THREE.Color(1, 1, 1), 0);
-    document.body.appendChild(jellyRenderer.domElement);
+    //document.body.appendChild(jellyRenderer.domElement);
+    document.getElementById('visualizerContainer').appendChild(jellyRenderer.domElement);
 
     clock = new THREE.Clock();
 
@@ -89,7 +90,7 @@ function initJellyVisualizer(mic) {
         stop: function () {
             console.log("Stopping jelly visualizer");
             window.cancelAnimationFrame(jellyAnimationId);
-            document.body.removeChild(jellyRenderer.domElement);
+            document.getElementById('visualizerContainer').removeChild(jellyRenderer.domElement);
             jellyOrbitControls.dispose();
             jellyGUI.destroy();
             window.removeEventListener("resize", jellyOnWindowResize);

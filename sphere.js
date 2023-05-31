@@ -26,7 +26,9 @@ function initSphereVisualizer(mic) {
 
     sphereRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     sphereRenderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(sphereRenderer.domElement);
+    //document.body.appendChild(sphereRenderer.domElement);
+    document.getElementById('visualizerContainer').appendChild(sphereRenderer.domElement);
+
 
     sphereOrbitControls = new THREE.OrbitControls(sphereCamera, sphereRenderer.domElement);
 
@@ -64,7 +66,8 @@ function initSphereVisualizer(mic) {
             console.log("Stopping sphere visualizer");
 
             window.cancelAnimationFrame(sphereAnimationId);
-            document.body.removeChild(sphereRenderer.domElement);
+            //document.body.removeChild(sphereRenderer.domElement);
+            document.getElementById('visualizerContainer').removeChild(sphereRenderer.domElement);
             sphereOrbitControls.dispose();
             gui.destroy();
         },

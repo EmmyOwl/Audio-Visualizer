@@ -14,7 +14,9 @@ function initOrbsVisualizer(mic) {
 
     orbsRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     orbsRenderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(orbsRenderer.domElement);
+    //document.body.appendChild(orbsRenderer.domElement);
+    document.getElementById('visualizerContainer').appendChild(orbsRenderer.domElement);
+
 
     orbsOrbitControls = new THREE.OrbitControls(orbsCamera, orbsRenderer.domElement);
     orbsOrbitControls.target.set(0, 0, 0);
@@ -33,7 +35,8 @@ function initOrbsVisualizer(mic) {
             console.log("Stopping Orbs visualizer");
 
             window.cancelAnimationFrame(orbsAnimationId);
-            document.body.removeChild(orbsRenderer.domElement);
+            //document.body.removeChild(orbsRenderer.domElement);
+            document.getElementById('visualizerContainer').removeChild(orbsRenderer.domElement);
             orbsOrbitControls.dispose();
             window.removeEventListener('resize', orbsOnWindowResize);
         },

@@ -20,6 +20,7 @@ visualizerController.domElement.style.display = 'none';
 visualizerController.domElement.style.position = 'absolute';
 visualizerController.domElement.style.left = '0px';
 visualizerController.domElement.style.top = '0px';
+visualizerController.domElement.style.zIndex = '2000';
 
 visualizerController.add(visualizerSettings, 'autoRun').name('Auto Run Visualizers').onChange(value => {
   if (value) {
@@ -110,6 +111,7 @@ async function startVisualizerFromSuggested(visualizerType) {
 function hideWelcomeContainer() {
   const welcomeContainer = document.getElementById("welcomeContainer");
   welcomeContainer.style.display = "none";
+  welcomeContainer.style.zIndex = 0;
 }
 
 const suggested2D = document.getElementById("suggested2D");
