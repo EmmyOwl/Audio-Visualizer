@@ -67,7 +67,12 @@ function initSphereVisualizer(mic) {
 
             window.cancelAnimationFrame(sphereAnimationId);
             //document.body.removeChild(sphereRenderer.domElement);
-            document.getElementById('visualizerContainer').removeChild(sphereRenderer.domElement);
+            //document.getElementById('visualizerContainer').removeChild(sphereRenderer.domElement);
+            let visualizerContainer = document.getElementById('visualizerContainer');
+            if (visualizerContainer && sphereRenderer && sphereRenderer.domElement && visualizerContainer.contains(sphereRenderer.domElement)) {
+                visualizerContainer.removeChild(sphereRenderer.domElement);
+            }
+
             sphereOrbitControls.dispose();
             gui.destroy();
             if (gui && gui.domElement.parentNode) {

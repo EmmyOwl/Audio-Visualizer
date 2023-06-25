@@ -90,7 +90,11 @@ function initJellyVisualizer(mic) {
         stop: function () {
             console.log("Stopping jelly visualizer");
             window.cancelAnimationFrame(jellyAnimationId);
-            document.getElementById('visualizerContainer').removeChild(jellyRenderer.domElement);
+            //document.getElementById('visualizerContainer').removeChild(jellyRenderer.domElement);
+            let visualizerContainer = document.getElementById('visualizerContainer');
+            if (visualizerContainer && jellyRenderer && jellyRenderer.domElement && visualizerContainer.contains(jellyRenderer.domElement)) {
+                visualizerContainer.removeChild(jellyRenderer.domElement);
+            }
             jellyOrbitControls.dispose();
             jellyGUI.destroy();
             if (jellyGUI && jellyGUI.domElement.parentNode) {

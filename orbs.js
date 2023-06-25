@@ -84,12 +84,12 @@ function createGeometry() {
         opacity: 0.9
     });
 
-     // 创建曲面几何体
-     var sphereGeometry = new THREE.SphereGeometry(13, 32, 32);
-     var sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x7F00FF, wireframe: true });
-     var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-     sphere.position.set(0, 0, 0);
-     group.add(sphere);
+    // 创建曲面几何体
+    var sphereGeometry = new THREE.SphereGeometry(13, 32, 32);
+    var sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x7F00FF, wireframe: true });
+    var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    sphere.position.set(0, 0, 0);
+    group.add(sphere);
 
     var coneGeometry = new THREE.ConeGeometry(10, 20, 32);
     var coneMaterial = new THREE.MeshBasicMaterial({ color: 0x00FFFF, wireframe: true });
@@ -98,11 +98,11 @@ function createGeometry() {
     group.add(cone);
 
     // ...
-    var boxGeometry = new THREE.BoxGeometry(20, 20, 20); 
-    var boxMaterial = new THREE.MeshPhongMaterial({  color: 0xFF00FF, emissive: 0xFF00FF, emissiveIntensity: 1, transparent: true, opacity: 0.7 }); 
-    var box = new THREE.Mesh(boxGeometry, boxMaterial); 
-    box.position.set(-50, 0, 0); 
-    group.add(box); 
+    var boxGeometry = new THREE.BoxGeometry(20, 20, 20);
+    var boxMaterial = new THREE.MeshPhongMaterial({ color: 0xFF00FF, emissive: 0xFF00FF, emissiveIntensity: 1, transparent: true, opacity: 0.7 });
+    var box = new THREE.Mesh(boxGeometry, boxMaterial);
+    box.position.set(-50, 0, 0);
+    group.add(box);
 
     var clock = new THREE.Clock();
 
@@ -210,27 +210,23 @@ function makeRoughBall(mesh, bassFr, treFr) {
 }
 
 function makeRoughGround(mesh, distortionFr) {
+    const positionAttribute = mesh.geometry.getAttribute('position');
+    const count = positionAttribute.count;
 
-    function makeRoughGround(mesh, distortionFr) {
-        const positionAttribute = mesh.geometry.getAttribute('position');
-        const count = positionAttribute.count;
+    for (let i = 0; i < count; i++) {
+        const x = positionAttribute.getX(i);
+        const y = positionAttribute.getY(i);
+        let z = positionAttribute.getZ(i);
 
-        for (let i = 0; i < count; i++) {
-            const x = positionAttribute.getX(i);
-            const y = positionAttribute.getY(i);
-            let z = positionAttribute.getZ(i);
+        const amp = 3;
+        const time = Date.now();
+        const distance = (noise.noise2D(x + time * 0.0003, y + time * 0.0001) + 0) * distortionFr * amp;
+        z = distance;
 
-            const amp = 3;
-            const time = Date.now();
-            const distance = (noise.noise2D(x + time * 0.0003, y + time * 0.0001) + 0) * distortionFr * amp;
-            z = distance;
-
-            positionAttribute.setXYZ(i, x, y, z);
-        }
-        positionAttribute.needsUpdate = true;
-        mesh.geometry.computeVertexNormals();
+        positionAttribute.setXYZ(i, x, y, z);
     }
-
+    positionAttribute.needsUpdate = true;
+    mesh.geometry.computeVertexNormals();
 }
 
 function fractionate(val, minVal, maxVal) {
