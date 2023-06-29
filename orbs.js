@@ -14,7 +14,6 @@ function initOrbsVisualizer(mic) {
 
     orbsRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     orbsRenderer.setSize(window.innerWidth, window.innerHeight);
-    //document.body.appendChild(orbsRenderer.domElement);
     document.getElementById('visualizerContainer').appendChild(orbsRenderer.domElement);
 
 
