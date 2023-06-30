@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonic Pulsar - ThreeJS Audio Visualiser</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.9/dat.gui.min.js"></script>
+    <script type="module" src="https://unpkg.com/shader-park-core/dist/shader-park-core.esm.js"></script>
+    <script src='microphone.js' defer></script>
+    <script src='2D.js' defer></script>
+    <script type="module" src='sphere.js' defer></script>
+    <script src='cube.js' defer></script>
+    <script src='orbs.js' defer></script>
+    <script type="module" src='jelly.js' defer></script>
+    <script type="module" src="sp-code.js"></script>
+    <script type="module" src="controller.js" defer></script>
+    <script type="module" src="raymarching.js" defer></script>
+    
+    <script src='galaxy/galaxy_audio.js' defer></script>
+	<script src="galaxy/Detector.js"></script>
+	<script src="galaxy/TrackballControls.js"></script>
+	<script src="galaxy/THREEx.WindowResize.js"></script>
+	<script src="galaxy/jquery-1.12.4.js"></script>
+	<script src="galaxy/astro.js"></script>
+	<script src="galaxy/luz.js"></script>
+</head>
+
+<body>
+    <canvas id="myCanvas"></canvas>
+    <div id="welcomeContainer">
+        <div id="welcomeText">ThreeJS Audio Visualizer</div>
+        <div id="suggestedVisualizers">
+            <div class="suggestedVisualizer" id="suggested2D">
+                <video autoplay loop muted playsinline>
+                    <source src="previews/2D_preview.mp4" type="video/mp4">
+                </video>
+                2D
+            </div>
+            <div class="suggestedVisualizer" id="suggestedSphere">
+                <video autoplay loop muted playsinline>
+                    <source src="previews/Sphere_preview.mp4" type="video/mp4">
+                </video>
+                Sphere
+            </div>
+            <div class="suggestedVisualizer" id="suggestedCube">
+                <video autoplay loop muted playsinline>
+                    <source src="previews/Cubes_preview.mp4" type="video/mp4">
+                </video>
+                Cubes
+            </div>
+            <div class="suggestedVisualizer" id="suggestedOrbs">
+                <video autoplay loop muted playsinline>
+                    <source src="previews/Orbs_preview.mp4" type="video/mp4">
+                </video>
+                Orbs
+            </div>
+            <div class="suggestedVisualizer" id="suggestedRaymarching">
+                <video autoplay loop muted playsinline>
+                    <source src="previews/Raymarching_preview.mp4" type="video/mp4">
+                </video>
+                Raymarching
+            </div>
+            <div class="suggestedVisualizer" id="suggestedJelly">
+                <video autoplay loop muted playsinline>
+                    <source src="previews/Jelly_preview.mp4" type="video/mp4">
+                </video>
+                Jelly
+            </div>
+            <div class="suggestedVisualizer" id="suggestedGalaxy">
+                <video autoplay loop muted playsinline>
+                    <source src="previews/Galaxy_preview.mp4" type="video/mp4">
+                </video>
+                Galaxy
+            </div>
+        </div>
+    </div>
+    <div id="guiContainer"></div>
+    <div id="visualizerContainer"></div>
+</body>
+
+</html>
